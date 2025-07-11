@@ -1,12 +1,12 @@
-## 🔐 What is Session Management?
+## What is Session Management?
 
 Session management is the process of maintaining user-specific state across multiple requests in a stateless protocol like HTTP. It enables web applications to remember who a user is, whether they're authenticated, and what actions or data are associated with them — such as login status, shopping cart contents, or user preferences.
 
-## 💡 In Application Memory Session Management
+## In Application Memory Session Management
 
 By default, most web frameworks (including Spring Boot) store session data **in memory** on the application server. When a user logs in, a session is created and associated with a unique session ID (typically stored in a cookie). On later requests, the server uses this ID to retrieve the user’s session data from its local memory.
 
-## ⚠️ Limitations of Sessions stored in the memory of the application
+##  Limitations of Sessions stored in the memory of the application
 
 While simple and fast, in-memory session management has serious limitations:
 
@@ -16,7 +16,7 @@ While simple and fast, in-memory session management has serious limitations:
 
 These limitations make in-application-memory sessions unsuitable for modern, cloud-native, or distributed applications.
 
-## 🌐 Distributed Session Management
+## Distributed Session Management
 
 Distributed session management solves these problems by storing session data in a **centralized external store** — such as Redis or a database. This allows all application instances to access the same session data, enabling:
 
@@ -26,7 +26,7 @@ Distributed session management solves these problems by storing session data in 
 
 With distributed session management, user experience remains consistent and reliable, regardless of how many servers the app runs on or where requests are routed.
 
-## 🚀 Why Redis is a Practical Choice for Session Management
+## Why Redis is a Practical Choice for Session Management
 
 Redis is an in-memory key-value store commonly used for caching and short-lived data. It fits session management well because of its performance characteristics and data model.
 
