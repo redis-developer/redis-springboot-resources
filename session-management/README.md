@@ -65,8 +65,8 @@ To enable basic session persistence to disk, you can set:
 1.	Start two instances of your Spring Boot application on different ports:
 
 ```shell
-./gradlew bootRun --args='--server.port=8081'
-./gradlew bootRun --args='--server.port=8082'
+./gradlew :session-management:distributed-session-management:bootRun --args='--server.port=8081'
+./gradlew :session-management:distributed-session-management:bootRun --args='--server.port=8082'
 ```
 
 2.	Open localhost:8081 in your browser and log in using the credentials:

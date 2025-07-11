@@ -4,7 +4,7 @@ This repository contains a collection of recipes and examples demonstrating how 
 
 ## Overview
 
-Redis is a versatile in-memory data structure database that can be used as a cache, message broker, search store, vector store, and more. When combined with Spring Boot, it provides powerful solutions for many common application requirements.
+Redis is a versatile in-memory first data structure database that can be used as a cache, message broker, search store, vector store, and more. When combined with Spring Boot, it provides powerful solutions for many common application requirements.
 
 This repository aims to provide practical, ready-to-use examples of Redis integration with Spring Boot applications.
 
