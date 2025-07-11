@@ -1,0 +1,48 @@
+plugins {
+    java
+    id("org.springframework.boot") version "3.5.3"
+    id("io.spring.dependency-management") version "1.1.7"
+}
+
+group = "com.redis"
+version = "0.0.1-SNAPSHOT"
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+
+    implementation("com.redis.om:redis-om-spring:1.0.0-RC3")
+    implementation("com.redis.om:redis-om-spring-ai:1.0.0-RC3")
+    annotationProcessor("com.redis.om:redis-om-spring:1.0.0-RC3")
+
+    // Spring AI
+    implementation("org.springframework.ai:spring-ai-openai:1.0.0")
+    implementation("org.springframework.ai:spring-ai-ollama:1.0.0")
+    implementation("org.springframework.ai:spring-ai-azure-openai:1.0.0")
+    implementation("org.springframework.ai:spring-ai-vertex-ai-embedding:1.0.0")
+    implementation("org.springframework.ai:spring-ai-bedrock:1.0.0")
+    implementation("org.springframework.ai:spring-ai-transformers:1.0.0")
+
+    // DJL
+    implementation("ai.djl.spring:djl-spring-boot-starter-autoconfigure:0.26")
+    implementation("ai.djl.spring:djl-spring-boot-starter-pytorch-auto:0.26")
+    implementation("ai.djl.huggingface:tokenizers:0.30.0")
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+}

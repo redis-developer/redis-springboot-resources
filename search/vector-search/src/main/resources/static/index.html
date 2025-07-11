@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Search and Autocomplete</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="wrapper">
+        <h1>Movie Search and Autocomplete</h1>
+
+        <div class="search-container">
+            <form id="search-form">
+                <div class="search-bars-container">
+                    <div class="search-input-container">
+                        <label for="search-input">Movie Title:</label>
+                        <input type="text" id="search-input" placeholder="Search by movie title..." autocomplete="off">
+                        <div id="autocomplete-results" class="autocomplete-results"></div>
+                    </div>
+
+                    <div class="search-input-container">
+                        <label for="extract-search-input">Movie Extract:</label>
+                        <input type="text" id="extract-search-input" placeholder="Search through movie extracts...">
+                    </div>
+                </div>
+
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label for="year-filter">Year:</label>
+                        <input type="number" id="year-filter" placeholder="Filter by year">
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="cast-filter">Cast:</label>
+                        <input type="text" id="cast-filter" placeholder="Filter by actor">
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="genre-filter">Genre:</label>
+                        <div class="genre-dropdown-container">
+                            <select id="genre-filter" multiple class="genre-select">
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                            <div id="genre-search-container">
+                                <div class="genre-search-wrapper">
+                                    <input type="text" id="genre-search" placeholder="Search genres...">
+                                    <button type="button" id="genre-toggle-btn" class="genre-toggle-btn">▼</button>
+                                </div>
+                                <div id="genre-dropdown" class="genre-dropdown"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="nearest-neighbors-filter">Number of Nearest Neighbors:</label>
+                        <input type="number" id="nearest-neighbors-filter" placeholder="Default: 10" min="1" value="10">
+                    </div>
+                </div>
+
+                <button type="submit" id="search-button">Search</button>
+            </form>
+        </div>
+
+        <div class="results-container">
+            <h2>Search Results</h2>
+            <div id="results-count"></div>
+            <div id="search-results" class="search-results"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Powered by <img src="/images/redis-logo.png" alt="Redis Logo"></p>
+    </footer>
+
+    <script src="/js/script.js"></script>
+</body>
+</html>
