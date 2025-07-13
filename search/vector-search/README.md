@@ -192,10 +192,10 @@ stream = stream.filter(Movie$.EMBEDDED_EXTRACT.knn(numberOfNearestNeighbors, emb
 
 #### Running the Demo
 
-1. Start Redis with the Redis Stack Docker image:
+1. Start Redis with the Redis Open Source Docker image:
 
 ```shell
-docker run -p 6379:6379 redis/redis-stack
+docker run -p 6379:6379 redis
 ```
 
 2. Run the application:

@@ -29,10 +29,10 @@ Redis Search is particularly useful for:
 
 This module contains several examples demonstrating different Redis Search capabilities:
 
-| Use Case                          | Description                                                                                                                     | Link                                                                     |
-|-----------------------------------|---------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
-| Full-text Search and Autocomplete | Demonstrates how to implement full-text search and autocomplete functionality using the Redis Query Engine with Redis OM Spring | [full-text-search-and-autocomplete](./full-text-search-and-autocomplete) |
-| Vector Search                     | Shows how to implement vector similarity search (KNN) for semantic search applications with Redis OM Spring                     | [vector-search](./vector-search)                                         |
-| Vector Search with Spring AI      | Demonstrates integration of Redis Vector Search with Spring AI                                                                  | [vector-search-spring-ai](./vector-search-spring-ai)                     |
+| Use Case                           | Description                                                                                                                     | Link                                                                     |
+|------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
+| Full-text Search and Autocomplete  | Demonstrates how to implement full-text search and autocomplete functionality using the Redis Query Engine with Redis OM Spring | [full-text-search-and-autocomplete](./full-text-search-and-autocomplete) |
+| Vector Search with Redis OM Spring | Shows how to implement vector similarity search (KNN) for semantic search applications with Redis OM Spring                     | [vector-search](./vector-search)                                         |
+| Vector Search with Spring AI       | Demonstrates integration of Redis Vector Search with Spring AI                                                                  | [vector-search-spring-ai](./vector-search-spring-ai)                     |
 
 Each submodule contains a complete Spring Boot application that demonstrates the respective Redis Query Engine capabilities.

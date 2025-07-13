@@ -1,24 +1,42 @@
 # Redis Spring Boot Recipes
 
-This repository contains a collection of recipes and examples demonstrating how to use Redis with Spring Boot for various common use cases.
+Redis Spring Boot Recipes is a comprehensive collection of practical examples and patterns demonstrating how to leverage Redis with Spring Boot for various common application needs. This repository serves as a reference implementation for developers looking to integrate Redis into their Spring Boot applications.
 
-## Overview
+## What is Redis Spring Boot Recipes?
 
-Redis is a versatile in-memory first data structure database that can be used as a cache, message broker, search store, vector store, and more. When combined with Spring Boot, it provides powerful solutions for many common application requirements.
+Redis Spring Boot Recipes provides ready-to-use examples of Redis integration with Spring Boot applications. It allows you to:
 
-This repository aims to provide practical, ready-to-use examples of Redis integration with Spring Boot applications.
+- Implement distributed session management for scalable applications
+- Use Redis Query Engine for full-text search and autocomplete functionality
+- Leverage vector similarity search for AI-powered applications
+- Explore various Redis data structures and capabilities within a Spring Boot context
+- Learn best practices for Redis integration with Spring Boot
 
-## Recipes
+The examples are designed to be practical, well-documented, and easy to understand, making them ideal for both learning and production use.
 
-### Session Management
+## Applicability
 
-The [session-management](./session-management) directory contains examples of how to implement session management in Spring Boot applications:
+Redis Spring Boot Recipes is particularly useful for:
 
-- **In-App Session Management**: Demonstrates the default Spring Boot session management behavior, where sessions are stored in the application's memory.
-  
-- **Distributed Session Management**: Shows how to implement distributed session management using Redis, allowing sessions to be shared across multiple application instances.
+1. **Web applications**: Implement session management, caching, and search functionality.
+2. **Microservices architectures**: Enable stateless application design while preserving user context.
+3. **AI-powered applications**: Implement semantic search, recommendation systems, and other AI features.
+4. **E-commerce platforms**: Provide fast and relevant product search with filtering capabilities.
+5. **Real-time applications**: Leverage Redis's high performance for real-time data processing.
+6. **Learning and exploration**: Understand Redis capabilities and integration patterns with Spring Boot.
+7. **Production-ready implementations**: Use as a reference for implementing Redis features in production applications.
 
-For more details, see the [Session Management README](./session-management/README.md).
+## Use Cases
+
+This repository contains several modules demonstrating different Redis capabilities with Spring Boot:
+
+| Module                  | Description                                                                                              | Link                                                 |
+|-------------------------|----------------------------------------------------------------------------------------------------------|------------------------------------------------------|
+| Session Management      | Demonstrates how to implement session management in Spring Boot applications using Redis                 | [session-management](./session-management)           |
+| Search                  | Shows how to use the Redis Query Engine for full-text search, autocomplete, and vector similarity search | [search](./search)                                   |
+| Artificial Intelligence | Demonstrates how to implement AI features using Redis, including agent memory, context awareness, and retrieval-augmented generation | [artificial-intelligence](./artificial-intelligence) |
+
+Each module contains one or more complete Spring Boot applications that demonstrate the respective Redis capabilities.
 
 ## Getting Started
 
