@@ -31,8 +31,9 @@ Redis AI Capabilities are particularly useful for:
 
 This module contains examples demonstrating different Redis AI capabilities:
 
-| Use Case     | Description                                                                                                | Link                                       |
-|--------------|------------------------------------------------------------------------------------------------------------|--------------------------------------------|
-| Agent Memory | Demonstrates how to implement short-term and long-term memory for AI agents using Redis vector capabilities | [agent-memory](./agent-memory)             |
+| Use Case           | Description                                                                                                 | Link                                       |
+|--------------------|-------------------------------------------------------------------------------------------------------------|--------------------------------------------|
+| Agent Memory       | Demonstrates how to implement short-term and long-term memory for AI agents using Redis vector capabilities | [agent-memory](./agent-memory)             |
+| RAG with Spring AI | Demonstrates how to implement Retrieval-Augmented Generation (RAG) using Spring AI and Redis Vector Store   | [rag-with-spring-ai](./rag-with-spring-ai) |
 
 Each submodule contains a complete Spring Boot application that demonstrates the respective Redis AI capabilities.
