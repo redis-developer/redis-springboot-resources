@@ -12,11 +12,10 @@ class MemoryManagementController(
 ) {
     @GetMapping("/retrieve")
     fun retrieveMemories(
-        @RequestParam query: String,
         @RequestParam(required = false) userId: String?
     ): ResponseEntity<List<Memory>> {
         val memories = memoryService.retrieveMemories(
-            query,
+            "",
             null,
             userId,
             50,

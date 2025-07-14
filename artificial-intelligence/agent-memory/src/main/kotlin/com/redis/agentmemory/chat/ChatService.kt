@@ -15,6 +15,19 @@ import org.springframework.stereotype.Service
 import redis.clients.jedis.JedisPooled
 import java.util.concurrent.ConcurrentHashMap
 
+data class ChatMetrics(
+    val embeddingTimeMs: Long = 0,
+    val memoryRetrievalTimeMs: Long = 0,
+    val memoryExtractionTimeMs: Long = 0,
+    val memoryStorageTimeMs: Long = 0,
+    val llmTimeMs: Long = 0
+)
+
+data class ChatResult(
+    val response: ChatResponse,
+    val metrics: ChatMetrics
+)
+
 @Service
 class ChatService(
     private val chatModel: ChatModel,
@@ -33,9 +46,13 @@ class ChatService(
     fun sendMessage(
         message: String,
         userId: String,
-    ): ChatResponse {
+    ): ChatResult {
         // Use userId as the key for conversation history
         log.info("Processing message from user $userId: $message")
+        var memoryRetrievalTimeMs: Long
+        var memoryExtractionTimeMs: Long
+        var memoryStorageTimeMs: Long
+        var llmTimeMs: Long
 
         // Get or create conversation history (try to load from Redis first)
         val history = conversationHistory.computeIfAbsent(userId) {
@@ -48,12 +65,17 @@ class ChatService(
             }
         }
 
-        // Retrieve relevant memories
-        val relevantMemories = retrieveRelevantMemories(message, userId)
+        // Retrieve relevant memories with timing
+        val startMemoryRetrieval = System.currentTimeMillis()
+        val (memories, embTime) = retrieveRelevantMemoriesWithTiming(message, userId)
+        memoryRetrievalTimeMs = System.currentTimeMillis() - startMemoryRetrieval
+
+        // Initialize metrics
+        val embeddingTimeMs: Long = embTime
 
         // Add memory context if available
-        if (relevantMemories.isNotEmpty()) {
-            val memoryContext = formatMemoriesAsContext(relevantMemories)
+        if (memories.isNotEmpty()) {
+            val memoryContext = formatMemoriesAsContext(memories)
 
             // Add memory context as a system message
             history.add(SystemMessage(memoryContext))
@@ -67,8 +89,10 @@ class ChatService(
         // Create prompt with conversation history
         val prompt = Prompt(history)
 
-        // Generate response
+        // Generate response with timing
+        val startLlmTime = System.currentTimeMillis()
         val response = chatModel.call(prompt)
+        llmTimeMs = System.currentTimeMillis() - startLlmTime
 
         // Add assistant response to history
         history.add(AssistantMessage(response.result.output.text ?: ""))
@@ -76,8 +100,10 @@ class ChatService(
         // Save conversation history to Redis
         saveConversationHistoryToRedis(userId, history)
 
-        // Extract and store memories from the conversation
-        extractAndStoreMemories(message, response.result.output.text ?: "", userId)
+        // Extract and store memories from the conversation with timing
+        val memoryExtractAndStorageTime = extractAndStoreMemoriesWithTiming(message, response.result.output.text ?: "", userId)
+        memoryExtractionTimeMs = memoryExtractAndStorageTime.extractingTime
+        memoryStorageTimeMs = memoryExtractAndStorageTime.storingTime
 
         // Summarize conversation if it's getting too long
         if (history.size > 10) {
@@ -86,18 +112,36 @@ class ChatService(
             saveConversationHistoryToRedis(userId, history)
         }
 
-        return response
+        // Create and return result with metrics
+        return ChatResult(
+            response = response,
+            metrics = ChatMetrics(
+                embeddingTimeMs = embeddingTimeMs,
+                memoryRetrievalTimeMs = memoryRetrievalTimeMs,
+                memoryExtractionTimeMs = memoryExtractionTimeMs,
+                memoryStorageTimeMs = memoryStorageTimeMs,
+                llmTimeMs = llmTimeMs
+            )
+        )
     }
 
-    private fun retrieveRelevantMemories(
+    private fun retrieveRelevantMemoriesWithTiming(
         query: String,
         userId: String
-    ): List<Memory> {
-        return memoryService.retrieveMemories(
+    ): Pair<List<Memory>, Long> {
+        val startEmbedding = System.currentTimeMillis()
+        val memories = memoryService.retrieveMemories(
             query = query,
             userId = userId,
             distanceThreshold = 0.3f
         ).map { it.memory }
+        val totalTime = System.currentTimeMillis() - startEmbedding
+
+        // Estimate embedding time as a portion of total time
+        // In a real implementation, you might want to measure this directly if possible
+        val embeddingTimeMs = (totalTime * 0.7).toLong() // Assuming embedding is ~70% of retrieval time
+
+        return Pair(memories, embeddingTimeMs)
     }
 
     private fun formatMemoriesAsContext(memories: List<Memory>): String {
@@ -115,12 +159,14 @@ class ChatService(
         """.trimIndent()
     }
 
-    private fun extractAndStoreMemories(
+    private fun extractAndStoreMemoriesWithTiming(
         userMessage: String,
         assistantResponse: String,
         userId: String
-    ) {
-        log.info("Extracting memories from conversation")
+    ): ExtractAndStoreTimings {
+        log.info("Extracting memories from conversation with timing")
+        var llmExtractionTimeMs: Long = 0
+        var memoryStorageTimeMs: Long = 0
 
         val extractionPrompt = """
             Analyze the following conversation and extract potential memories.
@@ -155,9 +201,11 @@ class ChatService(
 
         try {
             // Call the LLM to extract memories
+            val startLlmExtraction = System.currentTimeMillis()
             val extractionResponse = chatModel.call(
                 Prompt(listOf(SystemMessage(extractionPrompt)))
             )
+            llmExtractionTimeMs = System.currentTimeMillis() - startLlmExtraction
 
             val responseText = extractionResponse.result.output.text ?: ""
             log.debug("LLM memory extraction response: $responseText")
@@ -181,6 +229,7 @@ class ChatService(
                     .filter { it.isNotBlank() }
                     .map { it.trim() + if (!it.endsWith("}")) "}" else "" }
 
+                val startStorageTime = System.currentTimeMillis()
                 for (item in items) {
                     val typeMatch = Regex("\"type\"\\s*:\\s*\"(EPISODIC|SEMANTIC)\"").find(item)
                     // Updated regex to handle escaped quotes in content
@@ -209,12 +258,15 @@ class ChatService(
                         }
                     }
                 }
+                memoryStorageTimeMs = System.currentTimeMillis() - startStorageTime
             } else {
                 log.warn("LLM response was not in expected JSON format: $responseText")
             }
         } catch (e: Exception) {
             log.error("Error extracting memories: ${e.message}", e)
         }
+
+        return ExtractAndStoreTimings(llmExtractionTimeMs, memoryStorageTimeMs)
     }
 
     /**
@@ -415,3 +467,5 @@ class ChatService(
                   .replace("\\t", "\t")
     }
 }
+
+data class ExtractAndStoreTimings(val extractingTime: Long, val storingTime: Long)

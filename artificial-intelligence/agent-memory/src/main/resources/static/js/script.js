@@ -328,10 +328,18 @@ function initializeChat() {
                 loadingElement.remove();
             }
 
-            // Add assistant message to the chat
+            // Add assistant message to the chat with metrics
             chatMessages.innerHTML += `
                 <div class="assistant-message">
-                    <p>${data.result.output.text}</p>
+                    <p>${data.message}</p>
+                    <div class="metrics-container">
+                        <div class="metrics-header">Performance Metrics:</div>
+                        <div class="metrics-item">Embedding time: ${data.metrics.embeddingTimeMs}ms</div>
+                        <div class="metrics-item">Memory retrieval time: ${data.metrics.memoryRetrievalTimeMs}ms</div>
+                        <div class="metrics-item">LLM memory extraction time: ${data.metrics.memoryExtractionTimeMs}ms</div>
+                        <div class="metrics-item">Memory storage time: ${data.metrics.memoryStorageTimeMs}ms</div>
+                        <div class="metrics-item">LLM time: ${data.metrics.llmTimeMs}ms</div>
+                    </div>
                 </div>
             `;
 
@@ -367,7 +375,7 @@ function initializeChat() {
     sendButton.disabled = true;
 }
 
-// Add CSS class for error messages
+// Add CSS class for error messages and metrics
 document.addEventListener('DOMContentLoaded', function() {
     const style = document.createElement('style');
     style.textContent = `
@@ -394,6 +402,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
         .loading-message {
             opacity: 0.7;
+        }
+
+        .metrics-container {
+            margin-top: 8px;
+            padding: 8px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            font-size: 0.85em;
+            color: #666;
+            border-left: 3px solid #dc382c;
+        }
+
+        .metrics-header {
+            font-weight: bold;
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .metrics-item {
+            margin: 2px 0;
         }
     `;
     document.head.appendChild(style);

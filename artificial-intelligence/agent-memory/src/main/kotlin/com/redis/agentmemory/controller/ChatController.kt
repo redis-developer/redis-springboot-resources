@@ -1,9 +1,21 @@
 package com.redis.agentmemory.controller
 
 import com.redis.agentmemory.chat.ChatService
-import org.springframework.ai.chat.model.ChatResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+
+data class MetricsResponse(
+    val embeddingTimeMs: Long,
+    val memoryRetrievalTimeMs: Long,
+    val memoryExtractionTimeMs: Long,
+    val memoryStorageTimeMs: Long,
+    val llmTimeMs: Long
+)
+
+data class ChatResponseWithMetrics(
+    val message: String,
+    val metrics: MetricsResponse
+)
 
 @RestController
 @RequestMapping("/api/chat")
@@ -15,9 +27,20 @@ class ChatController(
     fun sendMessage(
         @RequestParam message: String,
         @RequestParam userId: String,
-    ): ResponseEntity<ChatResponse> {
-        val response = chatService.sendMessage(message, userId)
-        return ResponseEntity.ok(response)
+    ): ResponseEntity<ChatResponseWithMetrics> {
+        val result = chatService.sendMessage(message, userId)
+        return ResponseEntity.ok(
+            ChatResponseWithMetrics(
+                message = result.response.result.output.text ?: "",
+                metrics = MetricsResponse(
+                    embeddingTimeMs = result.metrics.embeddingTimeMs,
+                    memoryRetrievalTimeMs = result.metrics.memoryRetrievalTimeMs,
+                    memoryExtractionTimeMs = result.metrics.memoryExtractionTimeMs,
+                    memoryStorageTimeMs = result.metrics.memoryStorageTimeMs,
+                    llmTimeMs = result.metrics.llmTimeMs
+                )
+            )
+        )
     }
 
     @GetMapping("/history")
