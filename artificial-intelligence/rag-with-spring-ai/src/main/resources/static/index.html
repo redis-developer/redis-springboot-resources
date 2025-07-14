@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG with Spring AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="wrapper">
+        <h1>RAG with Spring AI</h1>
+        <p class="intro-text">This demo showcases a Retrieval-Augmented Generation (RAG) system using Spring AI and Redis. Ask questions about beer products to get accurate information retrieved from a knowledge base.</p>
+
+        <div class="app-container">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h2>Beer Knowledge Assistant</h2>
+                    <div class="user-info">
+                        <button id="start-chat-btn">Start New Chat</button>
+                        <button id="clear-chat-btn">Clear Chat</button>
+                    </div>
+                </div>
+
+                <div class="chat-messages" id="chat-messages">
+                    <div class="system-message">
+                        <p>Welcome to the Beer Knowledge Assistant! I can help you with questions about beer products. Try asking about specific beers, their ABV, IBU, or other characteristics.</p>
+                    </div>
+                </div>
+
+                <div class="chat-input">
+                    <textarea id="user-message" placeholder="Type your message here..." disabled></textarea>
+                    <button id="send-message-btn" disabled>Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Powered by <img src="/images/redis-logo.png" alt="Redis Logo"></p>
+    </footer>
+
+    <script src="/js/script.js"></script>
+</body>
+</html>

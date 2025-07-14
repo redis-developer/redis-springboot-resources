@@ -11,9 +11,6 @@ import org.springframework.ai.vectorstore.redis.RedisVectorStore
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
-/**
- * Implementation of the MemoryService interface using RedisVectorStore.
- */
 @Service
 class MemoryService(
     private val memoryVectorStore: RedisVectorStore

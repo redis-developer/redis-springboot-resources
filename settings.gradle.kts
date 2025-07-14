@@ -2,6 +2,7 @@ rootProject.name = "redis-springboot-recipes"
 
 include("artificial-intelligence")
 include("artificial-intelligence:agent-memory")
+include("artificial-intelligence:rag-with-spring-ai")
 
 include("search")
 include("search:full-text-search-and-autocomplete")
