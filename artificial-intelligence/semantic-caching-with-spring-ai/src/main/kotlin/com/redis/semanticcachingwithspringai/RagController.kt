@@ -24,7 +24,8 @@ class RagController(
             metrics = MetricsResponse(
                 embeddingTimeMs = result.metrics.embeddingTimeMs,
                 searchTimeMs = result.metrics.searchTimeMs,
-                llmTimeMs = result.metrics.llmTimeMs
+                llmTimeMs = result.metrics.llmTimeMs,
+                cachingTimeMs = result.metrics.cachingTimeMs
             )
         )
     }
@@ -37,7 +38,8 @@ data class Prompt(val prompt: String = "")
 data class MetricsResponse(
     val embeddingTimeMs: Long,
     val searchTimeMs: Long,
-    val llmTimeMs: Long
+    val llmTimeMs: Long,
+    val cachingTimeMs: Long = 0
 )
 
 data class ChatResponse(

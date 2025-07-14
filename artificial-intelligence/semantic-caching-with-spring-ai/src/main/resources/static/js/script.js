@@ -156,10 +156,11 @@ function initializeChat() {
                     <div class="metrics-container">
                         <p class="metrics-title">Processing Times:</p>
                         <ul class="metrics-list">
+                            ${data.metrics.cachingTimeMs > 0 ? `<li>Semantic Cache: ${data.metrics.cachingTimeMs}ms</li>` : ''}
                             <li>Embedding: ${data.metrics.embeddingTimeMs}ms</li>
                             <li>Search: ${data.metrics.searchTimeMs}ms</li>
                             <li>LLM: ${data.metrics.llmTimeMs}ms</li>
-                            <li>Total: ${data.metrics.embeddingTimeMs + data.metrics.searchTimeMs + data.metrics.llmTimeMs}ms</li>
+                            <li>Total: ${data.metrics.embeddingTimeMs + data.metrics.searchTimeMs + data.metrics.llmTimeMs + data.metrics.cachingTimeMs}ms</li>
                         </ul>
                     </div>
                 </div>

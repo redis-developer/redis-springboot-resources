@@ -40,7 +40,8 @@ class RagService(
     data class RagMetrics(
         val embeddingTimeMs: Long,
         val searchTimeMs: Long,
-        val llmTimeMs: Long
+        val llmTimeMs: Long,
+        val cachingTimeMs: Long = 0
     )
 
     data class RagResult(
@@ -59,7 +60,8 @@ class RagService(
                 metrics = RagMetrics(
                     embeddingTimeMs = 0,
                     searchTimeMs = 0,
-                    llmTimeMs = 0
+                    llmTimeMs = 0,
+                    cachingTimeMs = cachingTimeMs
                 )
             )
         }
@@ -90,7 +92,8 @@ class RagService(
             metrics = RagMetrics(
                 embeddingTimeMs = embeddingTimeMs,
                 searchTimeMs = searchTimeMs,
-                llmTimeMs = llmTimeMs
+                llmTimeMs = llmTimeMs,
+                cachingTimeMs = 0 // Not using cache in this case
             )
         )
     }
