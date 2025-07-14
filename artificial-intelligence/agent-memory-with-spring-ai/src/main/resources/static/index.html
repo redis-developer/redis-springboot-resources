@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Agent with Redis Memory</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="wrapper">
+        <h1>Travel Agent with Redis Memory</h1>
+        <p class="intro-text">This demo showcases a memory-enabled AI travel agent using Spring AI and Redis. The agent remembers your preferences and provides personalized travel recommendations based on your conversation history.</p>
+
+        <div class="app-container">
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <h2>Memory Management</h2>
+                </div>
+                <div class="memory-tabs">
+                    <div class="memory-tab active" data-tab="episodic">Episodic Memories</div>
+                    <div class="memory-tab" data-tab="semantic">Semantic Memories</div>
+                </div>
+
+                <div class="memory-content">
+                    <div class="memory-list" id="episodic-memories">
+                        <div class="no-memories">No episodic memories yet. Start chatting to create memories.</div>
+                    </div>
+                    <div class="memory-list" id="semantic-memories" style="display: none;">
+                        <div class="no-memories">No semantic memories yet. Start chatting to create memories.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h2>Travel Assistant</h2>
+                    <div class="user-info">
+                        <label for="chat-user-id">User ID:</label>
+                        <input type="text" id="chat-user-id" placeholder="Enter your user ID">
+                        <button id="start-chat-btn">Start Chat</button>
+                        <button id="clear-chat-btn">Clear Chat</button>
+                    </div>
+                </div>
+
+                <div class="chat-messages" id="chat-messages">
+                    <div class="system-message">
+                        <p>Welcome to the Travel Assistant! I can help you plan your trips and provide personalized recommendations. How can I assist you today?</p>
+                    </div>
+                </div>
+
+                <div class="chat-input">
+                    <textarea id="user-message" placeholder="Type your message here..."></textarea>
+                    <button id="send-message-btn">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Powered by <img src="/images/redis-logo.png" alt="Redis Logo"></p>
+    </footer>
+
+    <script src="/js/script.js"></script>
+</body>
+</html>

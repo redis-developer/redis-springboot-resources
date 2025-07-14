@@ -21,8 +21,7 @@ class RagDataLoader(
 
     override fun run(args: ApplicationArguments) {
         val indexInfo = vectorStore.jedis.ftInfo("beerIdx")
-        val numDocs = (indexInfo["num_docs"] as? String)?.toIntOrNull() ?: 0
-        if (numDocs > 20000) {
+        if (indexInfo["num_terms"] as Long > 20000) {
             logger.info("Embeddings already loaded. Skipping")
             return
         }
