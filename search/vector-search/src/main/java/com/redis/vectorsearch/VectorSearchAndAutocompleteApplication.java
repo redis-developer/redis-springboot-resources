@@ -1,5 +1,6 @@
 package com.redis.vectorsearch;
 
+import com.redis.vectorsearch.service.EmbeddingStatusService;
 import com.redis.vectorsearch.service.MovieService;
 import com.redis.om.spring.annotations.EnableRedisDocumentRepositories;
 import org.springframework.boot.CommandLineRunner;
@@ -15,9 +16,9 @@ public class VectorSearchAndAutocompleteApplication {
     }
 
     @Bean
-    CommandLineRunner loadData(MovieService movieService) {
+    CommandLineRunner loadData(EmbeddingStatusService embeddingStatusService, MovieService movieService) {
         return args -> {
-            if (movieService.isDataLoaded()) {
+            if (embeddingStatusService.areEmbeddingsReady()) {
                 System.out.println("Data already loaded. Skipping data load.");
                 return;
             }

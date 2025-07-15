@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis-insight:
+    image: redis/redisinsight:latest
+    ports:
+      - "5540:5540"
+    environment:
+      - RI_REDIS_HOST=redis
+      - RI_REDIS_PORT=6379
+      - RI_REDIS_ALIAS=Local Redis
+      - RI_REDIS_USERNAME=default
+      - RI_REDIS_PASSWORD=
+      - RI_REDIS_TLS=FALSE
+    volumes:
+      - redis-insight-data:/db
+    depends_on:
+      - redis
+
+  distributed-session-mgmt-app-base: &session-app
+    build:
+      context: ../..
+      dockerfile: session-management/distributed-session-management/Dockerfile
+    environment:
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  # First instance
+  distributed-session-mgmt-app-1:
+    <<: *session-app
+    ports:
+      - "8081:8080"
+
+  # Second instance
+  distributed-session-mgmt-app-2:
+    <<: *session-app
+    ports:
+      - "8082:8080"
+
+volumes:
+  redis-data:
+  redis-insight-data:

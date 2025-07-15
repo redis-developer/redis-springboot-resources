@@ -1,9 +1,12 @@
 package com.redis.vectorsearch.controller;
 
 import com.redis.vectorsearch.repository.MovieRepository;
+import com.redis.vectorsearch.service.EmbeddingStatusService;
 import com.redis.vectorsearch.service.SearchService;
 import com.redis.om.spring.autocomplete.Suggestion;
 import com.redis.om.spring.repository.query.autocomplete.AutoCompleteOptions;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,14 +22,23 @@ public class SearchController {
 
     private final SearchService searchService;
     private final MovieRepository movieRepository;
+    private final EmbeddingStatusService embeddingStatusService;
 
-    public SearchController(SearchService searchService, MovieRepository movieRepository) {
+    public SearchController(SearchService searchService, MovieRepository movieRepository, EmbeddingStatusService embeddingStatusService) {
         this.searchService = searchService;
         this.movieRepository = movieRepository;
+        this.embeddingStatusService = embeddingStatusService;
     }
 
     @GetMapping("/search/{q}")
-    public Map<String, Object> query(@PathVariable("q") String query) {
+    public ResponseEntity<Object> query(@PathVariable("q") String query) {
+        if (!embeddingStatusService.areEmbeddingsReady()) {
+            long embeddedDocs = embeddingStatusService.getTotalDocNum();
+            return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(Map.of("error", "Embeddings are still being created (" + embeddedDocs + " of 10000 already created). This operation takes around two minutes to complete. Please try again later."));
+        }
+
         long startTime = System.currentTimeMillis();
 
         List<Suggestion> suggestions = movieRepository
@@ -39,11 +51,11 @@ public class SearchController {
         result.put("suggestions", suggestions);
         result.put("autocompleteTime", autocompleteTime);
 
-        return result;
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/search")
-    public Map<String, Object> search(
+    public ResponseEntity<Object> search(
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String text,
             @RequestParam(required = false) List<String> cast,
@@ -51,19 +63,32 @@ public class SearchController {
             @RequestParam(required = false) List<String> genres,
             @RequestParam(required = false) Integer numberOfNearestNeighbors
     ) {
+        if (!embeddingStatusService.areEmbeddingsReady()) {
+            long embeddedDocs = embeddingStatusService.getTotalDocNum();
+            return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(Map.of("error", "Embeddings are still being created (" + embeddedDocs + " of 10000 already created). This operation takes around two minutes to complete. Please try again later."));
+        }
 
-        return searchService.search(
+        return ResponseEntity.ok(searchService.search(
                 title,
                 text,
                 cast,
                 year,
                 genres,
                 numberOfNearestNeighbors
-        );
+        ));
     }
 
     @GetMapping("/genres")
-    public Map<String, Object> getAllGenres() {
+    public ResponseEntity<Object> getAllGenres() {
+        if (!embeddingStatusService.areEmbeddingsReady()) {
+            long embeddedDocs = embeddingStatusService.getTotalDocNum();
+            return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(Map.of("error", "Embeddings are still being created (" + embeddedDocs + " of 10000 already created). This operation takes around two minutes to complete. Please try again later."));
+        }
+
         long startTime = System.currentTimeMillis();
 
         Set<String> genres = searchService.getAllGenres();
@@ -76,6 +101,6 @@ public class SearchController {
         result.put("count", genres.size());
         result.put("fetchTime", fetchTime);
 
-        return result;
+        return ResponseEntity.ok(result);
     }
 }

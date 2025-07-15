@@ -51,7 +51,7 @@ class SecurityConfig(
                     .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
                     .invalidSessionUrl("/login?invalid")
                     .sessionFixation { it.newSession() }
-                    .maximumSessions(1)
+                    .maximumSessions(2)
                     .maxSessionsPreventsLogin(true)
                     .expiredUrl("/login?expired")
             }

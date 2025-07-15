@@ -1,19 +1,76 @@
-### Vector Search with Spring AI Demo
+# Vector Search with Spring AI Demo
 
 Vector similarity search (semantic search) allows you to find items based on their semantic meaning rather than exact keyword matches. Spring AI provides a standardized way to work with AI models and vector embeddings across different providers. This demo showcases how to integrate Redis Vector Search with Spring AI to implement semantic search applications.
 
-#### Key Features
+## Learning resources:
 
-1. **Spring AI Integration**: Use Spring AI's abstractions for working with vector embeddings
-2. **Transformers Embedding Model**: Generate embeddings using the Transformers library
-3. **Redis Vector Store**: Store and search vector embeddings in Redis
-4. **Pre-filtered Search**: Combine vector search with traditional filtering (title, cast, year, genres)
+- Article: [Semantic Search with Spring Boot & Redis](https://raphaeldelio.com/2025/04/29/semantic-search-with-spring-boot-redis/)
+- Video: [What is an embedding model?](https://youtu.be/0U1S0WSsPuE)
+- Video: [What is semantic search?](https://youtu.be/o3XN4dImESE)
+- Video: [What is a vector database?](https://youtu.be/Yhv19le0sBw)
 
-#### How It Works
+## Requirements
 
-The application uses Spring AI's `RedisVectorStore` to store and search vector embeddings.
+To run this demo, you’ll need the following installed on your system:
+- Docker – [Install Docker](https://docs.docker.com/get-docker/)
+- Docker Compose – Included with Docker Desktop or available via CLI installation guide
 
-RedisVectorStore is a Spring AI abstraction for storing and querying vector-embedded documents (in this case, movie data) using Redis (via the Redis Query Engine). It’s commonly used for semantic search, recommendations, or similarity-based queries.
+## Running the demo
+
+The easiest way to run the demo is with Docker Compose, which sets up all required services in one command.
+
+### Step 1: Clone the repository
+
+If you haven’t already:
+
+```bash
+git clone https://github.com/redis-developer/redis-springboot-recipes.git
+cd redis-springboot-recipes/search/full-text-search-and-autocomplete
+```
+
+### Step 2: Start the services
+
+```bash
+docker compose up --build
+```
+
+This will start:
+
+- redis: for storing documents
+- redis-insight: a UI to explore the Redis data
+- vector-search-spring-ai-app: the Spring Boot app that implements vector search
+
+## Using the demo
+
+When all of your services are up and running. Go to `localhost:8080` to access the demo.
+
+If you search using the extract box, the system will perform semantic search and find items on the database that are semantically similar to your query:
+
+![Screenshot of a movie search app using vector similarity search. The user searches for “movie about a clownfish who searches for his son.” The top result is Finding Nemo, with a similarity score of 0.505, followed by Big Fish and Swordfish. Each result includes a poster, title, year, cast, genres, and description snippet.](readme-assets/vector-search.png)
+
+You can also apply filters for pre-filtering the results before applying semantic search:
+
+![Screenshot of a movie search app using vector similarity search with filters applied: cast = Albert Brooks, genre = animated. The query is “movie about a clownfish who searches for his son.” Results include Finding Nemo, Finding Nemo 3D, and Finding Dory, each with similarity scores, posters, cast, genres, and descriptions.](readme-assets/pre-filtered-vector-search.png)
+
+### Redis Insight
+
+RedisInsight is a graphical tool developed by Redis to help developers and administrators interact with and manage Redis databases more efficiently. It provides a visual interface for exploring keys, running commands, analyzing memory usage, and monitoring performance metrics in real-time. RedisInsight supports features like full-text search, time series, streams, and vector data structures, making it especially useful for working with more advanced Redis use cases. With its intuitive UI, it simplifies debugging, optimizing queries, and understanding data patterns without requiring deep familiarity with the Redis CLI.
+
+The Docker Compose file will also spin up an instance of Redis Insight. We can access it by going to `localhost:5540`:
+
+If we go to Redis Insight, we will be able to see the data stored in Redis:
+
+![Screenshot of RedisInsight showing 10,000 JSON movie documents in the com.redis.vectorsearch.domain.Movie namespace. The selected document is for Star Trek III: The Search for Spock, displaying fields like title, year, genres, extract, and a thumbnail URL. The embeddedExtract vector field is also included.](readme-assets/redis-insight.png)
+
+And if run the command `FT.INFO 'com.redis.fulltextsearchandautocomplete.domain.MovieIdx'`, we'll be able to see the schema that was created for indexing our documents efficiently:
+
+![Screenshot of RedisInsight displaying the schema of the MovieIdx vector search index. The index is built on JSON documents and includes fields like title, year, cast, genres, embeddedExtract (VECTOR), and id. The vector field uses the HNSW algorithm with FLOAT32 data type, 384 dimensions, COSINE distance metric, M=16, and EF_CONSTRUCTION=200.](readme-assets/index-redis-insight.png)
+
+## How It Is Implemented
+
+The application uses Spring AI's `RedisVectorStore` to store and search vector embeddings of movie descriptions.
+
+### Configuring the Vector Store
 
 ```kotlin
 @Bean
@@ -41,118 +98,112 @@ fun movieVectorStore(
 
 Let's break this down:
 
-##### A vector store must be defined for each index as a Spring Bean:
+- **Index Name**: `movieIdx` - Redis will create an index with this name for searching movies
+- **Content Field**: `extract` - The movie description that will be embedded
+- **Embedding Field**: `extractEmbedding` - The field that will store the resulting vector embedding
+- **Metadata Fields**: Additional fields for filtering and retrieval (title, year, cast, genres, thumbnail)
+- **Prefix**: `movies:` - All keys in Redis will be prefixed with this to organize the data
+- **Vector Algorithm**: `HSNW` - Hierarchical Navigable Small World algorithm for efficient approximate nearest neighbor search
+
+### Configuring the Embedding Model
+
+Spring AI provides a standardized way to work with different embedding models. In this application, we use the Transformers embedding model:
 
 ```kotlin
 @Bean
-fun movieVectorStore(
-    embeddingModel: EmbeddingModel,
-    jedisPooled: JedisPooled
-): RedisVectorStore
-```
-
-This Spring bean creates and returns a configured RedisVectorStore. It depends on:
-- embeddingModel: used to convert text (e.g. movie descriptions) into vector embeddings. (Video: [What's an embedding model?](https://www.youtube.com/watch?v=0U1S0WSsPuE))
-- jedisPooled: a thread-safe pooled Redis client to interact with Redis.
-
-##### Index Name: 
-
-```kotlin
-.indexName("movieIdx")
-```
-
-Redis will create an index named movieIdx — this is used to search the vector data efficiently.
-
-##### Field to be embbeded:
-
-```kotlin
-.contentFieldName("extract")
-.embeddingFieldName("extractEmbedding")
-```
-
-- "extract": the raw content (e.g. movie synopsis) that will be embedded.
-- "extractEmbedding": the field that will store the resulting vector embedding.
-
-##### Metadata fields:
-
-```kotlin
-.metadataFields(
-    RedisVectorStore.MetadataField("title", Schema.FieldType.TEXT),
-    RedisVectorStore.MetadataField("year", Schema.FieldType.NUMERIC),
-    RedisVectorStore.MetadataField("cast", Schema.FieldType.TAG),
-    RedisVectorStore.MetadataField("genres", Schema.FieldType.TAG),
-    RedisVectorStore.MetadataField("thumbnail", Schema.FieldType.TEXT),
-)
-```
-
-These fields are indexed as part of the Redis schema and can be used in filtering queries:
-- TEXT: full-text searchable (e.g. title, thumbnail URL)
-- NUMERIC: range queries (e.g. year)
-- TAG: exact-match filtering (e.g. genre, cast)
-
-##### Redis Document Key Prefix: 
-
-```kotlin
-.prefix("movies:")
-```
-
-All vector documents in Redis will be stored with keys starting with "movies:" to namespace them properly.
-
-##### Schema Initialization:
-
-```kotlin
-.initializeSchema(true)
-```
-
-Tells RedisVectorStore to automatically create the index and schema on startup, if it doesn’t already exist.
-
-##### Vector Similarity Algorithm:
-
-```kotlin
-.vectorAlgorithm(RedisVectorStore.Algorithm.HSNW)
-```
-
-Specifies the approximate nearest-neighbor algorithm to use (Video: [Exact vs Approximate Nearest Neighbor](https://www.youtube.com/watch?v=9NvO-VdjY80)). HSNW (Hierarchical Navigable Small World) is fast and well-suited for high-dimensional vector search.
-
-Once this bean is registered, your application can:
-- Store movies along with their embeddings in Redis
-- Search for similar movies by embedding a query and running a vector similarity search
-- Filter the results by metadata (e.g., genre, year, cast)
-
-#### Storing movies using the MovieVectorStore
-
-Movies are stored as Spring AI `Document` objects with metadata:
-
-```kotlin
-val documents = movies.map { movie ->
-    val text = movie.extract ?: ""
-    val metadata = mapOf(
-        "title" to (movie.title ?: ""),
-        "year" to movie.year,
-        "cast" to movie.cast,
-        "genres" to movie.genres,
-        "thumbnail" to (movie.thumbnail ?: "")
-    )
-    Document(text, metadata)
+fun embeddingModel(): EmbeddingModel {
+    return TransformersEmbeddingModel()
 }
-movieVectorStore.add(documents)
 ```
 
-#### Searching movies with the MovieVectorStore
+The `TransformersEmbeddingModel` is a local embedding model based on the Hugging Face Transformers library, which allows us to generate vector embeddings without relying on external API calls.
 
-The search service uses Spring AI's `SearchRequest` and `FilterExpressionBuilder` to perform vector similarity search with filters:
+### Storing and Vectorizing Documents
+
+When the application starts, it loads movie data from a JSON file and stores it in Redis with vector embeddings:
 
 ```kotlin
-val b = FilterExpressionBuilder()
-
-val filterList = mutableListOf<FilterExpressionBuilder.Op>()
-
-if (title.isNotBlank()) {
-    filterList.add(b.`in`("title", title))
+fun storeMovies(movies: List<Movie>) {
+    val documents = movies.map { movie ->
+        val text = movie.extract ?: ""
+        val metadata = mapOf(
+            "title" to (movie.title ?: ""),
+            "year" to movie.year,
+            "cast" to movie.cast,
+            "genres" to movie.genres,
+            "thumbnail" to (movie.thumbnail ?: "")
+        )
+        Document(text, metadata)
+    }
+    movieVectorStore.add(documents)
 }
+```
 
-// [...more filters]
+This process:
+1. Converts each Movie object to a Spring AI Document
+2. Sets the movie extract as the document content
+3. Adds metadata fields for filtering and retrieval
+4. Adds the documents to the RedisVectorStore, which automatically:
+   - Generates vector embeddings for the content
+   - Stores the documents in Redis with their embeddings
+   - Updates the vector index for efficient search
 
+### Performing Vector Similarity Search
+
+When a user enters a search query, the application performs vector similarity search to find semantically similar movies:
+
+```kotlin
+fun searchMovies(
+    title: String,
+    extract: String,
+    actors: List<String>,
+    year: Int? = null,
+    genres: List<String>,
+    numberOfNearestNeighbors: Int
+): Map<String, Any> {
+    val b = FilterExpressionBuilder()
+    val filterList = mutableListOf<FilterExpressionBuilder.Op>()
+
+    // Add filters for title, actors, year, and genres
+    if (title.isNotBlank()) {
+        filterList.add(b.`in`("title", title))
+    }
+
+    // ... other filters ...
+
+    val filterExpression = when (filterList.size) {
+        0 -> null
+        1 -> filterList[0]
+        else -> filterList.reduce { acc, expr -> b.and(acc, expr) }
+    }?.build()
+
+    val searchResults = movieVectorStore.similaritySearch(
+        SearchRequest.builder()
+            .query(extract)
+            .topK(numberOfNearestNeighbors)
+            .filterExpression(filterExpression)
+            .build()
+    ) ?: emptyList()
+
+    // Transform results to Movie objects
+    // ...
+}
+```
+
+This search process:
+1. Builds filter expressions for pre-filtering based on metadata (title, actors, year, genres)
+2. Creates a search request with:
+   - The extract text as the query (which will be embedded into a vector)
+   - A topK parameter to limit the number of results
+   - Optional filter expressions for pre-filtering
+3. Performs vector similarity search using the RedisVectorStore
+4. Transforms the search results back into Movie objects with similarity scores
+
+### Pre-filtering with Vector Search
+
+One powerful feature of Redis vector search is the ability to pre-filter results before performing vector similarity search. This allows for more efficient and targeted searches:
+
+```kotlin
 val filterExpression = when (filterList.size) {
     0 -> null
     1 -> filterList[0]
@@ -168,130 +219,9 @@ val searchResults = movieVectorStore.similaritySearch(
 )
 ```
 
-This Kotlin snippet performs a semantic search (Video: [What is semantic search?](https://www.youtube.com/watch?v=o3XN4dImESE)) on a Redis vector store (movieVectorStore), building up optional filters dynamically based on provided parameters. Here’s a breakdown of what’s happening:
+Pre-filtering works by:
+1. First applying traditional filters on metadata fields (e.g., year, cast, genres)
+2. Then performing vector similarity search only on the filtered subset
+3. Returning the top K most similar results from the filtered set
 
-1. Filter Expression Builder Initialization
-
-```kotlin
-val b = FilterExpressionBuilder()
-```
-
-Creates a builder (b) to help construct complex Redis filter expressions. It’s used to filter documents based on metadata like title, year, cast, etc.
-
-2. Collect Filters Based on Conditions
-
-```kotlin
-val filterList = mutableListOf<FilterExpressionBuilder.Op>()
-```
-
-This list will hold all the conditional filters — each representing a Redis-compatible metadata condition.
-
-```kotlin
-if (title.isNotBlank()) {
-    filterList.add(b.`in`("title", title))
-}
-```
-
-If a non-empty title is provided, a filter is added to match documents where the "title" metadata matches the input.
-
-Similar conditional checks (not shown here) would be used to filter by cast, year, genres, etc.
-
-3. Combine Filters into One Expression
-
-```kotlin
-val filterExpression = when (filterList.size) {
-    0 -> null
-    1 -> filterList[0]
-    else -> filterList.reduce { acc, expr -> b.and(acc, expr) }
-}?.build()
-```
-
-This logic constructs the final Redis filter expression:
-- If there are no filters, the search is unfiltered.
-- If there’s only one, it uses it as-is.
-- If there are multiple, it chains them with logical AND using `b.and(...)`.
-
-`.build()` converts it into the final FilterExpression string Redis expects.
-
-4. Run the Semantic Vector Search
-
-```kotlin
-val searchResults = movieVectorStore.similaritySearch(
-    SearchRequest.builder()
-        .query(extract)                              // The semantic search query (text to embed)
-        .topK(numberOfNearestNeighbors)              // Return top N closest matches
-        .filterExpression(filterExpression)          // Apply optional metadata filtering
-        .build()
-)
-```
-
-This performs a vector similarity search using:
-- A semantic query (extract) that is embedded into a vector,
-- A topK setting to limit how many nearest matches to return,
-- A Redis filter expression to narrow down by metadata.
-
-#### Running the Demo
-
-1. Start Redis with the Redis Open Source image:
-
-```shell
-docker run -p 6379:6379 redis
-```
-
-2. Run the application:
-
-```shell
-./gradlew :search:vector-search-spring-ai:bootRun
-```
-
-It will take around 2 minutes to embed all movies
-
-3. Open your browser to http://localhost:8080
-
-4. Try searching for movies by entering a description in the search box. The application will find movies with semantically similar descriptions.
-
-5. Use the filters to narrow down your search by genres, year, or cast members.
-
-#### Screenshots
-
-##### View of vector search
-
-![A web interface for “Movie Search” showing a form with input fields for Movie Title, Movie Extract, Year, Cast, Genre, and Number of Nearest Neighbors. The user has entered the extract: “a movie about a kid and a doctor who go back in t”. Below the search form, the “Search Results” section displays 10 movies found in 17 milliseconds. The results include movie cards for “Back to School” (1986), “Time Changer” (2002), and “Back to the Future” (1985), each showing a similarity score and cast details.](readme-assets/vector-search.png)
-
-##### View of pre-filtered vector search
-
-![A “Movie Search” web UI with search fields populated: “Back” in the Movie Title field, and “a movie about a kid and a doctor who go back in t” in the Movie Extract field. The Genre filter is set to “science fiction,” and Number of Nearest Neighbors is 10. Below the form, the “Search Results” section shows 4 movies found in 11 milliseconds. Displayed results include “Back to the Future” (1985), “Back to the Future Part III” (1990), and “Back to the Future Part II” (1989), each showing a similarity score, cast list, genres, a short synopsis, and a “Read more” link.](readme-assets/vector-search.png)
-
-##### View of list of genres
-
-![A web-based “Movie Search” interface showing a partially filled form. The “Movie Extract” field contains the text “a movie about a kid and a doctor who go back in t”, while other fields are blank. The “Genre” dropdown is expanded, displaying a searchable list of genres including “romance”, “independent”, “martial arts”, “superhero”, and “historical”. Below the form, a “Search Results” section indicates 10 movies were found in 17 milliseconds, with movie cards partially visible at the bottom.](readme-assets/list-of-genres.png)
-
-##### Redis Insight
-
-RedisInsight is a graphical tool developed by Redis to help developers and administrators interact with and manage Redis databases more efficiently. It provides a visual interface for exploring keys, running commands, analyzing memory usage, and monitoring performance metrics in real-time. RedisInsight supports features like full-text search, time series, streams, and vector data structures, making it especially useful for working with more advanced Redis use cases. With its intuitive UI, it simplifies debugging, optimizing queries, and understanding data patterns without requiring deep familiarity with the Redis CLI.
-
-Video: [Redis Insight Deep Dive](https://www.youtube.com/watch?v=dINUz_XOZ0M)
-
-[Get Redis Insight](https://redis.io/insight/)
-
-##### View of all documents in Redis Insight
-
-![RedisInsight interface. The left panel lists Redis keys under the “movies” namespace, each identified as a JSON type with approximately 11 KB size. The right panel is currently empty, prompting the user to select a key to view its details. The interface includes key filters, a refresh indicator, and memory usage stats at the top.](./readme-assets/view-of-all-documents-in-redis-insight.png)
-
-#### View of a selected document in Redis Insight
-
-![RedisInsight interface showing detailed view of a selected JSON key named movies:12dab771-29ae-44fe-b44d-758557fc673b. On the left panel, a list of movie JSON keys is displayed under the “movies” namespace. The right panel reveals the selected key’s content, including fields such as cast, thumbnail, extractEmbedding, extract, year, genres, and title. The extract field contains a detailed synopsis of the movie “Toy Story 4”.](./readme-assets/view-of-all-documents-in-redis-insight.png)
-
-#### View of Movie Index's schema 
-
-![RedisInsight interface displaying the result of the command FT.INFO 'movieIdx'. The output panel shows index metadata for a Redis Search index named movieIdx that is indexing JSON documents with prefix movies:. The table outlines indexed fields: extract, extractEmbedding, title, year, cast, genres, and thumbnail, including their types (e.g., TEXT, VECTOR, NUMERIC, TAG), weight, and vector indexing configuration (HNSW algorithm, FLOAT32 type, 384 dimensions, COSINE distance, etc.). Summary statistics are shown at the bottom, including total document and term counts.](./readme-assets/view-of-all-documents-in-redis-insight.png)
-
-#### View of the result of `FT.TAGVALS movieIdx genres`
-
-![RedisInsight interface showing the result of the FT.TAGVALS 'movieIdx' genres command. The screen displays a list of genre tag values indexed in the movieIdx RediSearch index, including values such as "action", "adventure", "animated", "biography", "comedy", "crime", "dance", "disaster", "documentary", "drama", "erotic", and "family". The response is timestamped and executed in 1.103 milliseconds.](./readme-assets/view-of-tagvals-in-redis-insight.png)
-
-#### API Endpoints
-
-- `GET /search?title=&text=&cast=&year=&genres=&numberOfNearestNeighbors=`: Search movies with vector similarity and filters
-- `GET /genres`: Get all available genres
-
+This approach combines the precision of traditional filtering with the semantic understanding of vector search, allowing users to find movies that are both semantically similar to their query and match specific criteria.

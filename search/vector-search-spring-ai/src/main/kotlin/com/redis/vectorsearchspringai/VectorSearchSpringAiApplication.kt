@@ -10,8 +10,11 @@ class VectorSearchSpringAiApplication {
     @Bean
     fun loadData(movieService: MovieService): CommandLineRunner {
         return CommandLineRunner {
-            movieService.loadMovies("movies.json").let { movies ->
-                movieService.storeMovies(movies)
+            val movies = movieService.loadMovies("movies.json")
+            val batchSize = 500
+
+            movies.chunked(batchSize).forEach { batch ->
+                movieService.storeMovies(batch)
             }
         }
     }

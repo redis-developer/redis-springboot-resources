@@ -1,9 +1,9 @@
 # Redis Query Engine (former RediSearch)
-the Redis Query Engine is a powerful search engine built into Redis that provides advanced search capabilities for Redis data structures. It enables real-time indexing and querying of textual, numeric, and geospatial data stored in Redis, allowing for complex search operations without the need for a separate search engine.
+The Redis Query Engine is a powerful search engine built into Redis that provides advanced search capabilities for Redis data structures. It enables real-time indexing and querying of textual, numeric, and geospatial data stored in Redis, allowing for complex search operations without the need for a separate search engine.
 
 ## What is the Redis Query Engine?
 
-Redis Search extends Redis with full-text search capabilities, secondary indexing, and query language support. It allows you to:
+The Redis Query Engine extends Redis with full-text search capabilities, secondary indexing, and query language support. It allows you to:
 
 - Create indexes on Redis data
 - Perform full-text searches with complex queries
@@ -15,7 +15,7 @@ The Redis Query Engine is fully integrated with Redis, providing high performanc
 
 ## Applicability
 
-Redis Search is particularly useful for:
+The Redis Query Engine is particularly useful for:
 
 1. **Full-text search applications**: Search through text fields with support for stemming, fuzzy matching, and complex queries.
 2. **Autocomplete systems**: Implement type-ahead suggestions with prefix matching.

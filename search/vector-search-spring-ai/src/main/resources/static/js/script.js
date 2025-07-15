@@ -34,6 +34,12 @@ function fetchAutocompleteSuggestions(query) {
     return fetch(`/search/${encodeURIComponent(query)}`)
         .then(response => {
             if (!response.ok) {
+                if (response.status === 503) {
+                    return response.json().then(data => {
+                        alert(data.error || 'Embeddings are still being created. Please try again later.');
+                        throw new Error('Embeddings not ready');
+                    });
+                }
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.json();
@@ -166,6 +172,12 @@ function searchMovies(title, extract, cast, year, genres, numberOfNearestNeighbo
     return fetch(url)
         .then(response => {
             if (!response.ok) {
+                if (response.status === 503) {
+                    return response.json().then(data => {
+                        alert(data.error || 'Embeddings are still being created. Please try again later.');
+                        throw new Error('Embeddings not ready');
+                    });
+                }
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.json();
@@ -306,6 +318,12 @@ function fetchAllActors() {
     return fetch('/actors')
         .then(response => {
             if (!response.ok) {
+                if (response.status === 503) {
+                    return response.json().then(data => {
+                        alert(data.error || 'Embeddings are still being created. Please try again later.');
+                        throw new Error('Embeddings not ready');
+                    });
+                }
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.json();
@@ -326,6 +344,12 @@ function fetchAllGenres() {
     return fetch('/genres')
         .then(response => {
             if (!response.ok) {
+                if (response.status === 503) {
+                    return response.json().then(data => {
+                        alert(data.error || 'Embeddings are still being created. Please try again later.');
+                        throw new Error('Embeddings not ready');
+                    });
+                }
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.json();

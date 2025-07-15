@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis-insight:
+    image: redis/redisinsight:latest
+    ports:
+      - "5540:5540"
+    environment:
+      - RI_REDIS_HOST=redis
+      - RI_REDIS_PORT=6379
+      - RI_REDIS_ALIAS=Local Redis
+      - RI_REDIS_USERNAME=default
+      - RI_REDIS_PASSWORD=
+      - RI_REDIS_TLS=FALSE
+    volumes:
+      - redis-insight-data:/db
+    depends_on:
+      - redis
+
+  rag-app:
+    build:
+      context: ../..
+      dockerfile: artificial-intelligence/rag-with-spring-ai/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-demo}
+    depends_on:
+      redis:
+        condition: service_healthy
+
+volumes:
+  redis-data:
+  redis-insight-data:

@@ -1,40 +1,91 @@
-### Vector Search with Redis OM Spring Demo
+# Vector Search with Redis OM Spring Demo
 
 Vector similarity search (also known as semantic search) is a powerful technique that allows you to find items based on their semantic meaning rather than exact keyword matches. Redis Query Engine supports vector similarity search through its vector indexing capabilities, enabling you to implement semantic search applications with high performance and low latency.
 
 This demo showcases how to implement vector similarity search using Redis OM Spring, a library that simplifies working with Redis data models and the Redis Query Engine.
 
-#### Key Features
+## Learning resources:
 
-1. **Vector Similarity Search**: Find movies with similar descriptions using semantic similarity
-2. **Automatic Embedding Generation**: Automatically generate vector embeddings from text
-3. **Hybrid Search**: Combine vector search with traditional filtering (title, cast, year, genres)
-4. **K-Nearest Neighbors (KNN)**: Find the most similar items using KNN algorithm
+- Article: [Semantic Search with Spring Boot & Redis](https://raphaeldelio.com/2025/04/29/semantic-search-with-spring-boot-redis/)
+- Video: [Autocomplete in Spring with Redis](https://www.youtube.com/watch?v=rjaR1PR5gVk)
+- Video: [What is an embedding model?](https://youtu.be/0U1S0WSsPuE)
+- Video: [Exact vs Approximate Nearest Neighbors - What's the difference?](https://youtu.be/9NvO-VdjY80)
+- Video: [What is semantic search?](https://youtu.be/o3XN4dImESE)
+- Video: [What is a vector database?](https://youtu.be/Yhv19le0sBw)
 
-#### How It Works
+## Requirements
 
-The application uses Redis OM Spring annotations to define a document model with vector embedding capabilities:
+To run this demo, you’ll need the following installed on your system:
+- Docker – [Install Docker](https://docs.docker.com/get-docker/)
+- Docker Compose – Included with Docker Desktop or available via CLI installation guide
 
-##### Defining the document
+## Running the demo
+
+The easiest way to run the demo is with Docker Compose, which sets up all required services in one command.
+
+### Step 1: Clone the repository
+
+If you haven’t already:
+
+```bash
+git clone https://github.com/redis-developer/redis-springboot-recipes.git
+cd redis-springboot-recipes/search/full-text-search-and-autocomplete
+```
+
+### Step 2: Start the services
+
+```bash
+docker compose up --build
+```
+
+This will start:
+
+- redis: for storing documents
+- redis-insight: a UI to explore the Redis data
+- vector-search-app: the Spring Boot app that implements vector search
+
+## Using the demo
+
+When all of your services are up and running. Go to `localhost:8080` to access the demo.
+
+If you search using the extract box, the system will perform semantic search and find items on the database that are semantically similar to your query:
+
+![Screenshot of a movie search app using vector similarity search. The user searches for “movie about a clownfish who searches for his son.” The top result is Finding Nemo, with a similarity score of 0.505, followed by Big Fish and Swordfish. Each result includes a poster, title, year, cast, genres, and description snippet.](readme-assets/vector-search.png)
+
+You can also apply filters for pre-filtering the results before applying semantic search:
+
+![Screenshot of a movie search app using vector similarity search with filters applied: cast = Albert Brooks, genre = animated. The query is “movie about a clownfish who searches for his son.” Results include Finding Nemo, Finding Nemo 3D, and Finding Dory, each with similarity scores, posters, cast, genres, and descriptions.](readme-assets/pre-filtered-vector-search.png)
+
+This demo also supports autocompletion of the title:
+
+![Close-up screenshot of a movie search app’s autocomplete feature. The user types “Finding” in the “Movie Title” field, triggering a dropdown with suggestions like Finding You, Finding Nemo, Finding Dory, Finding Bliss, and Finding Amanda. Autocomplete response time is shown as 8 ms.](readme-assets/autocomplete.png)
+
+### Redis Insight
+
+RedisInsight is a graphical tool developed by Redis to help developers and administrators interact with and manage Redis databases more efficiently. It provides a visual interface for exploring keys, running commands, analyzing memory usage, and monitoring performance metrics in real-time. RedisInsight supports features like full-text search, time series, streams, and vector data structures, making it especially useful for working with more advanced Redis use cases. With its intuitive UI, it simplifies debugging, optimizing queries, and understanding data patterns without requiring deep familiarity with the Redis CLI.
+
+The Docker Compose file will also spin up an instance of Redis Insight. We can access it by going to `localhost:5540`:
+
+If we go to Redis Insight, we will be able to see the data stored in Redis:
+
+![Screenshot of RedisInsight showing 10,000 JSON movie documents in the com.redis.vectorsearch.domain.Movie namespace. The selected document is for Star Trek III: The Search for Spock, displaying fields like title, year, genres, extract, and a thumbnail URL. The embeddedExtract vector field is also included.](readme-assets/redis-insight.png)
+
+And if run the command `FT.INFO 'com.redis.fulltextsearchandautocomplete.domain.MovieIdx'`, we'll be able to see the schema that was created for indexing our documents efficiently:
+
+![Screenshot of RedisInsight displaying the schema of the MovieIdx vector search index. The index is built on JSON documents and includes fields like title, year, cast, genres, embeddedExtract (VECTOR), and id. The vector field uses the HNSW algorithm with FLOAT32 data type, 384 dimensions, COSINE distance metric, M=16, and EF_CONSTRUCTION=200.](readme-assets/index-redis-insight.png)
+
+## How It Is Implemented
+
+The application uses Redis OM Spring to vectorize documents and perform vector similarity search. Here's how it works:
+
+### Defining Vector Fields with Redis OM Spring Annotations
+
+Documents are defined as Java classes with Redis OM Spring annotations that specify how they should be vectorized and indexed:
 
 ```java
 @Document
 public class Movie {
-    @Id
-    private String id;
-
-    @Searchable
-    @AutoComplete
-    private String title;
-
-    @Indexed(sortable = true)
-    private int year;
-
-    @Indexed
-    private List<String> cast;
-
-    @Indexed
-    private List<String> genres;
+    // Other fields...
 
     @Vectorize(
             destination = "embeddedExtract",
@@ -51,198 +102,121 @@ public class Movie {
             initialCapacity = 10
     )
     private float[] embeddedExtract;
-    
-    // ...
+
+    // Getters and setters...
 }
 ```
 
-Key annotations:
-- `@Document`
-  - **Purpose:** Marks the class as a Redis JSON document.
-  - **Effect:** This tells Redis OM Spring to persist instances of this class in Redis as a JSON Document using a specific index and key pattern.
-  - **Similar to:** @Entity in JPA.
-  
-- `@Id`
-  - **Purpose:** Marks the field as the unique identifier for the document.
-  - **Effect:** This field will be used as the Redis key suffix (e.g., movies:{id}). If not populated, Redis OM Spring will automatically populate it with a randomly generated ULID.
+Let's break down the annotations:
 
-- `@Searchable`
-  - **Purpose:** Enables full-text search on this field.
-  - **Effect:** The field is indexed as TEXT and becomes searchable via `FT.SEARCH` or Redis OM queries.
+- `@Vectorize`: Automatically generates vector embeddings for the text field
+  - `destination`: Specifies the field where the embedding will be stored
+  - `embeddingType`: Defines the granularity of the embedding (SENTENCE in this case)
 
-- `@AutoComplete`
-  - **Purpose:** Enables support for auto-completion queries.
-  - **Effect:** Creates a Redis AutoComplete index, allowing prefix matching and suggestions.
+- `@Indexed` with vector parameters:
+  - `schemaFieldType = SchemaFieldType.VECTOR`: Marks this as a vector field
+  - `algorithm = VectorField.VectorAlgorithm.HNSW`: Uses the Hierarchical Navigable Small World algorithm for efficient approximate nearest neighbor search
+  - `type = VectorType.FLOAT32`: Specifies the vector data type
+  - `dimension = 384`: Sets the vector dimension (must match the number of dimensions output by the embedding model)
+  - `distanceMetric = DistanceMetric.COSINE`: Uses cosine similarity for distance calculation
 
-- `@Indexed(sortable = true)`
-  - **Purpose:** Indexes the field and allows sorting on it.
-  - **Effect:** Enables range queries and ordering by this field. sortable = true is required for sorting.
+### Storing and Vectorizing Documents
 
-- `@Indexed`
-  - **Purpose:** Indexes a field for filtering or querying.
-  - **Effect:** Enables efficient Redis-based filters. For List<String>, it’s typically treated as a TAG field.
-
-- `@Vectorize`
-  - **Purpose:** Tells Redis OM to generate a vector embedding from the extract field.
-  - **Params:**
-      - **destination** = "embeddedExtract": Output embedding will be stored in the embeddedExtract field.
-      - **embeddingType** = EmbeddingType.SENTENCE: Embedding model will treat the input as a sentence for encoding.
-  - **Effect:** Automatically generates and stores vector embeddings at runtime (or insert time), used for vector search.
-
-- `@Indexed(...)` (on embeddedExtract)
-  - **Purpose:** Marks the float array as a vector field for vector similarity search.
-  - **Params:**
-    - **schemaFieldType** = SchemaFieldType.VECTOR: Declares this as a vector.
-    - **algorithm** = VectorField.VectorAlgorithm.HNSW: Uses the HNSW (Hierarchical Navigable Small World) algorithm for approximate nearest neighbor search.
-    - **type** = VectorType.FLOAT32: Declares each vector component as a 32-bit float.
-    - **dimension** = 384: Sets the expected dimensionality of the vector (must match the model’s output).
-    - **distanceMetric** = DistanceMetric.COSINE: Uses cosine similarity for ranking vectors.
-    - **initialCapacity** = 10: Preallocates capacity in the index (mainly for optimization).
-  - **Effect:** Allows querying Redis with KNN or hybrid vector + filter search.
-
-##### Defining a repository:
-
-
-##### Searching through the index:
-
-To effectively search through the schema, we will use Redis OM Spring's EntityStream:
+When documents are saved to Redis using the repository, Redis OM Spring automatically generates vector embeddings:
 
 ```java
-float[] embeddedQuery = embedder
-        .getTextEmbeddingsAsFloats(List.of(extract), Movie$.EXTRACT)
-        .getFirst();
+public void loadAndSaveMovies(String filePath) throws Exception {
+    // Load movies from JSON file
+    List<Movie> movies = objectMapper.readValue(is, new TypeReference<>() {});
 
-SearchStream<Movie> stream = entityStream.of(Movie.class);
-List<Pair<Movie, Double>> matchedMovies = stream
-        .filter(Movie$.EMBEDDED_EXTRACT.knn(numberOfNearestNeighbors, embeddedQuery))
-        .filter(Movie$.TITLE.containing(title))
-        .filter(Movie$.CAST.eq(actors))
-        .filter(Movie$.YEAR.eq(year))
-        .filter(Movie$.GENRES.eq(genres))
-        .map(Fields.of(Movie$._THIS, Movie$._EMBEDDED_EXTRACT_SCORE))
-        .collect(Collectors.toList());
+    // Save movies in batches
+    int batchSize = 500;
+    for (int i = 0; i < unprocessedMovies.size(); i += batchSize) {
+        int end = Math.min(i + batchSize, unprocessedMovies.size());
+        List<Movie> batch = unprocessedMovies.subList(i, end);
+        movieRepository.saveAll(batch);
+    }
+}
 ```
 
-Let's break it down:
+When `movieRepository.saveAll(batch)` is called:
+1. Redis OM Spring generates vector embeddings for the `extract` field
+2. The embeddings are stored in the `embeddedExtract` field
+3. The documents are saved to Redis with their vector embeddings
+4. Redis creates a vector index for efficient similarity search
 
-1. Embed the Extract Field using Redis OM Spring's Embedder:
+### Performing Vector Similarity Search
+
+Vector similarity search is implemented using Redis OM Spring's EntityStream API:
 
 ```java
-float[] embeddedQuery = embedder
-    .getTextEmbeddingsAsFloats(List.of(extract), Movie$.EXTRACT)
-    .getFirst();
+public Map<String, Object> search(
+        String title,
+        String extract,
+        List<String> actors,
+        Integer year,
+        List<String> genres,
+        Integer numberOfNearestNeighbors
+) {
+    SearchStream<Movie> stream = entityStream.of(Movie.class);
+
+    if (extract != null) {
+        // Convert search query to vector embedding
+        float[] embeddedQuery = embedder.getTextEmbeddingsAsFloats(List.of(extract), Movie$.EXTRACT).getFirst();
+
+        // Perform KNN search with the embedded query
+        stream = stream.filter(Movie$.EMBEDDED_EXTRACT.knn(numberOfNearestNeighbors, embeddedQuery))
+                        .sorted(Movie$._EMBEDDED_EXTRACT_SCORE);
+    }
+
+    // Apply additional filters
+    List<Pair<Movie, Double>> matchedMovies = stream
+            .filter(Movie$.TITLE.containing(title))
+            .filter(Movie$.CAST.eq(actors))
+            .filter(Movie$.YEAR.eq(year))
+            .filter(Movie$.GENRES.eq(genres))
+            .map(Fields.of(Movie$._THIS, Movie$._EMBEDDED_EXTRACT_SCORE))
+            .collect(Collectors.toList());
+
+    return result;
+}
 ```
 
-- This line converts the extract string into a float array (embedding vector).
-- embedder.getTextEmbeddingsAsFloats(...):
-  - Likely uses a sentence embedding model (like OpenAI, BERT, etc.).
-  - Takes the text input (extract) and embeds it using the model.
-- Movie$.EXTRACT tells the embedder which field this embedding is meant to correspond to.
-- getFirst() retrieves the first (and only) embedding since only one input string was given.
+This method:
+1. Converts the search query text into a vector embedding using the same embedding model
+2. Performs a K-Nearest Neighbors (KNN) search to find the most similar vectors
+3. Applies additional filters to narrow down the results (pre-filtering)
+4. Returns the matched movies along with their similarity scores
 
-2. Create a Redis SearchStream for Movie Entities
+### Combining Vector Search with Autocomplete
+
+The application also supports autocomplete functionality alongside vector search:
 
 ```java
-SearchStream<Movie> stream = entityStream.of(Movie.class);
+public interface MovieRepository extends RedisDocumentRepository<Movie, String> {
+    List<Suggestion> autoCompleteTitle(String title, AutoCompleteOptions options);
+}
 ```
 
-- Initializes a SearchStream over the Redis index for Movie objects.
-- This is the Redis OM abstraction for running fluent-style Redis Query Engine queries.
+The `autoCompleteTitle` method is automatically implemented by Redis OM Spring based on the `@AutoComplete` annotation on the `title` field in the Movie class.
 
-3. Filter by Vector Similarity and Structured Metadata:
+### How Redis Indexes the Vectors
 
-```java
-List<Pair<Movie, Double>> matchedMovies = stream
-    .filter(Movie$.EMBEDDED_EXTRACT.knn(numberOfNearestNeighbors, embeddedQuery))
+When the application starts, Redis OM Spring creates a vector index in Redis based on the annotations:
+
+```
+FT.CREATE idx:com.redis.vectorsearch.domain.Movie ON JSON PREFIX 1 com.redis.vectorsearch.domain.Movie: SCHEMA 
+    $.title AS title TEXT SORTABLE 
+    $.year AS year NUMERIC SORTABLE 
+    $.cast AS cast TAG 
+    $.genres AS genres TAG 
+    $.embeddedExtract AS embeddedExtract VECTOR HNSW 6 TYPE FLOAT32 DIM 384 DISTANCE_METRIC COSINE INITIAL_CAP 10
 ```
 
-- Applies a K-Nearest Neighbors (KNN) vector similarity filter on the embeddedExtract field.
-- Returns the top numberOfNearestNeighbors most similar documents to the embeddedQuery.
+This index enables efficient vector similarity search with the following features:
+- HNSW algorithm for approximate nearest neighbor search
+- 384-dimensional FLOAT32 vectors
+- Cosine similarity as the distance metric
+- Additional text and tag fields for filtering
 
-```java
-    .filter(Movie$.TITLE.containing(title))
-    .filter(Movie$.CAST.eq(actors))
-    .filter(Movie$.YEAR.eq(year))
-    .filter(Movie$.GENRES.eq(genres))
-```
-
-These are structured filters that further narrow down the results:
-- TITLE.containing(title) – partial text match on movie title.
-- CAST.eq(actors) – exact match on cast list.
-- YEAR.eq(year) – filter by exact year.
-- GENRES.eq(genres) – exact genre match.
-
-4. Select Fields and Collect Results: 
-
-```java
-    .map(Fields.of(Movie$._THIS, Movie$._EMBEDDED_EXTRACT_SCORE))
-    .collect(Collectors.toList());
-```
-
-- .map(...) projects only the actual Movie object (_THIS) and the similarity score (_EMBEDDED_EXTRACT_SCORE).
-- Returns a List<Pair<Movie, Double>>:
-  - Movie = the matched object
-  - Double = similarity score (higher = more similar)
-
-```java
-float[] embeddedQuery = embedder.getTextEmbeddingsAsFloats(List.of(extract), Movie$.EXTRACT).getFirst();
-stream = stream.filter(Movie$.EMBEDDED_EXTRACT.knn(numberOfNearestNeighbors, embeddedQuery))
-               .sorted(Movie$._EMBEDDED_EXTRACT_SCORE);
-```
-
-#### Running the Demo
-
-1. Start Redis with the Redis Open Source Docker image:
-
-```shell
-docker run -p 6379:6379 redis
-```
-
-2. Run the application:
-
-```shell
-./gradlew :search:vector-search:bootRun
-```
-
-It will take around 2 minutes to embed all the movies
-
-3. Open your browser to http://localhost:8080
-
-4. Try searching for movies by entering a description in the search box. The application will find movies with semantically similar descriptions.
-
-5. Use the filters to narrow down your search by genres, year, or cast members.
-
-#### API Endpoints
-
-- `GET /search?title=&text=&cast=&year=&genres=&numberOfNearestNeighbors=`: Search movies with vector similarity and filters
-- `GET /genres`: Get all available genres
-
-#### Screenshots
-
-##### Autocomplete of title
-
-![A movie search web application showing an autocomplete dropdown for the “Movie Title” input field. The user has typed “Finding”, and the system suggests titles including “Finding You”, “Finding Nemo”, “Finding Dory”, “Finding Bliss”, and “Finding Amanda”. To the right, there are additional input fields for “Movie Extract”, “Year”, “Cast”, and a dropdown for “Genre” (currently filtered by “animate”). The bottom section displays a “Search Results” header indicating 5 movies found in 5 ms, with movie cards partially visible.](readme-assets/autocomplete.png)
-
-##### Vector Search
-
-![A movie search web app titled “Movie Search and Autocomplete.” The user has entered the text “movie about a clownfish who searches for his son” in the “Movie Extract” input field. No filters are applied for title, cast, year, or genre. The number of nearest neighbors is set to 10.  Under “Search Results,” the app displays 10 movies found in 6 milliseconds, with the top three being: 1.	Swordfish (2001) – Similarity Score: 0.4660. Cast: Hugh Jackman, John Travolta, Halle Berry, Don Cheadle. Genres: Crime, Drama, Action, Thriller. The card includes a black-and-white image from the movie. 2.	Big Fish (2003) – Similarity Score: 0.4842. Cast includes Ewan McGregor and Albert Finney. Genres: Comedy, Drama, Fantasy. Card shows a stylized tree on a landscape. 3.	Finding Nemo (2003) – Similarity Score: 0.5050. Cast: Albert Brooks, Ellen DeGeneres. Genres: Animated, Family, Adventure, Comedy, Drama. Poster features a shark underwater.  Each movie card includes title, year, similarity score, cast, genres, and a short description.](readme-assets/vector-search.png)
-
-##### Pre-filtered Vector Search
-
-![A movie search web application interface titled “Movie Search and Autocomplete.” The user has entered “movie about a clownfish who searches for his son” in the “Movie Extract” field, selected “Albert Brooks” under “Cast,” and filtered the “Genre” by “animated.” The search results show 5 movies found in 5 milliseconds. Displayed movies include: 1.	Finding Nemo (2003) – with a similarity score of 0.505 and cast including Albert Brooks and Ellen DeGeneres. 2.	Finding Nemo 3D (2012) – same similarity score and expanded cast list. 3.	Finding Dory (2016) – similarity score of 0.604, featuring returning and additional cast members.  Each result includes a poster image, year, cast, genres, and a short description.](readme-assets/pre-filtered-vector-search.png)
-
-#### Redis Insight
-
-RedisInsight is a graphical tool developed by Redis to help developers and administrators interact with and manage Redis databases more efficiently. It provides a visual interface for exploring keys, running commands, analyzing memory usage, and monitoring performance metrics in real-time. RedisInsight supports features like full-text search, time series, streams, and vector data structures, making it especially useful for working with more advanced Redis use cases. With its intuitive UI, it simplifies debugging, optimizing queries, and understanding data patterns without requiring deep familiarity with the Redis CLI.
-
-Video: [Redis Insight Deep Dive](https://www.youtube.com/watch?v=dINUz_XOZ0M)
-
-[Get Redis Insight](https://redis.io/insight/)
-
-#### View of a selected document in Redis Insight
-
-![RedisInsight displaying a JSON document with key com.redis.vectorsearch.domain.Movie:01K026NX3HNGQ1491OV34PTBSP, representing the movie “Absence of Malice” (1981), including fields such as title, year, cast, genres, extract, embeddedExtract, and a thumbnail image URL.](readme-assets/selected-document-redis-insight.png)
-
-#### View of Movie Index's schema
-
-!A RedisInsight view of the MovieIdx index (com.redis.vectorsearch.domain.MovieIdx) showing schema fields like title, year, cast, genres, embeddedExtract, and id, with embeddedExtract configured as an HNSW vector field using FLOAT32 type, 384 dimensions, and cosine distance.](readme-assets/schema-redis-insight.png)
+This approach allows for high-performance semantic search operations, even with large datasets, by leveraging Redis's in-memory data structures and the Redis Query Engine's vector search capabilities.

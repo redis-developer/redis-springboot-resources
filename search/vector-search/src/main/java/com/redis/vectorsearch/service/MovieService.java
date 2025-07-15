@@ -36,14 +36,20 @@ public class MovieService {
                     .filter(movie -> !movieRepository.existsById(movie.getTitle()) &&
                             movie.getYear() > 1980
                     ).toList();
-            long systemMillis = System.currentTimeMillis();
-            movieRepository.saveAll(unprocessedMovies);
-            long elapsedMillis = System.currentTimeMillis() - systemMillis;
-            log.info("Saved " + unprocessedMovies.size() + " movies in " + elapsedMillis + " ms");
-        }
-    }
 
-    public boolean isDataLoaded() {
-        return movieRepository.count() > 0;
+            int batchSize = 500;
+            long startTime = System.currentTimeMillis();
+            int totalSaved = 0;
+
+            for (int i = 0; i < unprocessedMovies.size(); i += batchSize) {
+                int end = Math.min(i + batchSize, unprocessedMovies.size());
+                List<Movie> batch = unprocessedMovies.subList(i, end);
+                movieRepository.saveAll(batch);
+                totalSaved += batch.size();
+            }
+
+            long elapsedMillis = System.currentTimeMillis() - startTime;
+            log.info("Saved " + totalSaved + " movies in " + elapsedMillis + " ms");
+        }
     }
 }

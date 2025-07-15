@@ -23,7 +23,9 @@ function initializeChat() {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const error = new Error(`HTTP error! status: ${response.status}`);
+                error.response = response;
+                throw error;
             }
             return response.json();
         })
@@ -50,12 +52,22 @@ function initializeChat() {
         .catch(error => {
             console.error('Error starting chat:', error);
 
-            // Show error message
-            chatMessages.innerHTML += `
-                <div class="system-message error-message">
-                    <p>Error starting chat: ${error.message}</p>
-                </div>
-            `;
+            // Handle the response
+            if (error.message.includes('503')) {
+                // Show popup for embeddings not ready
+                error.response.json().then(data => {
+                    alert(data.error || 'Embeddings are still being created. Please try again later.');
+                }).catch(() => {
+                    alert('Embeddings are still being created. Please try again later.');
+                });
+            } else {
+                // Show error message in chat
+                chatMessages.innerHTML += `
+                    <div class="system-message error-message">
+                        <p>Error starting chat: ${error.message}</p>
+                    </div>
+                `;
+            }
         });
     });
 
@@ -136,7 +148,9 @@ function initializeChat() {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const error = new Error(`HTTP error! status: ${response.status}`);
+                error.response = response;
+                throw error;
             }
             return response.json();
         })
@@ -177,12 +191,22 @@ function initializeChat() {
                 loadingElement.remove();
             }
 
-            // Add error message to the chat
-            chatMessages.innerHTML += `
-                <div class="system-message error-message">
-                    <p>Error sending message: ${error.message}</p>
-                </div>
-            `;
+            // Handle the response
+            if (error.message.includes('503')) {
+                // Show popup for embeddings not ready
+                error.response.json().then(data => {
+                    alert(data.error || 'Embeddings are still being created. Please try again later.');
+                }).catch(() => {
+                    alert('Embeddings are still being created. Please try again later.');
+                });
+            } else {
+                // Add error message to the chat
+                chatMessages.innerHTML += `
+                    <div class="system-message error-message">
+                        <p>Error sending message: ${error.message}</p>
+                    </div>
+                `;
+            }
 
             // Scroll to the bottom of the chat
             chatMessages.scrollTop = chatMessages.scrollHeight;

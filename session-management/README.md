@@ -32,7 +32,6 @@ This module contains examples demonstrating different Redis Session Management c
 
 | Use Case                       | Description                                                                                 | Link                                                               |
 |--------------------------------|---------------------------------------------------------------------------------------------|--------------------------------------------------------------------|
-| In-App Session Management      | Demonstrates the default Spring Boot session management using in-application memory         | [in-app-session-management](./in-app-session-management)           |
 | Distributed Session Management | Shows how to implement distributed session management using Redis for scalable applications | [distributed-session-management](./distributed-session-management) |
 
 Each submodule contains a complete Spring Boot application that demonstrates the respective Redis Session Management capabilities.
