@@ -26,6 +26,13 @@ This repository contains several modules demonstrating different Redis capabilit
 | Vector Search with Redis OM Spring                     | Shows how to implement vector similarity search using Redis OM Spring                 | [vector-search](./search/vector-search)                                         |
 | Vector Search with Spring AI                           | Illustrates how to implement vector similarity search using Spring AI and Redis       | [vector-search-spring-ai](./search/vector-search-spring-ai)                     |
 
+### Security
+
+| Module    | Description                                                                                                                                          | Link                              |
+|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------|
+| Multi-ACL | Demonstrates how to configure and manage multiple Redis ACL users in Spring Boot, separating read and write responsibilities across different users. | [multi-acl](./security/multi-acl) |                                                                                                                                                      |      |
+
+
 ### Session Management
 
 | Module                         | Description                                                                             | Link                                                                                  |
