@@ -5,6 +5,9 @@ include("artificial-intelligence:agent-memory-with-spring-ai")
 include("artificial-intelligence:rag-with-spring-ai")
 include("artificial-intelligence:semantic-caching-with-spring-ai")
 
+include("caching")
+include("caching:caching-with-kotlinx-serialization")
+
 include("search")
 include("search:full-text-search-and-autocomplete")
 include("search:vector-search")

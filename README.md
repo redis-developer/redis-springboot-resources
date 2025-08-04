@@ -18,6 +18,13 @@ This repository contains several modules demonstrating different Redis capabilit
 | Vector Search with Redis OM Spring | Shows how to implement vector similarity search using Redis OM Spring                     | [vector-search](./search/vector-search)                                                      |
 | Vector Search with Spring AI       | Illustrates how to implement vector similarity search using Spring AI and Redis           | [vector-search-spring-ai](./search/vector-search-spring-ai)                                  |
 
+### Caching
+
+| Module                                  | Description                                                                                                                                                                                      | Link                                                                                    |
+|-----------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
+| Spring Cache with Kotlinx Serialization | Demonstrates how to use Kotlinx Serialization as a custom Redis serializer for Spring Cache, enabling JSON-based caching of Kotlin data classes without relying on JDK serialization or Jackson. | [spring-cache-with-kotlinx-serialization](./caching/caching-with-kotlinx-serialization) |                                                                                                                                                      |      |
+
+
 ### Search
 
 | Module                                                 | Description                                                                           | Link                                                                            |
