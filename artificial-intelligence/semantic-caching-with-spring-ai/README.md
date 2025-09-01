@@ -188,11 +188,10 @@ fun retrieve(message: String): RagResult {
 ```
 
 This orchestrates the entire process:
-1. Check if there's a semantically similar prompt in the cache
-2. If found, return the cached answer immediately
-3. If not found, perform the standard RAG process:
-   - Retrieve relevant documents using vector similarity search
-   - Generate a response using the LLM
-   - Store the prompt and response in the semantic cache for future use
+1. Retrieve relevant documents using vector similarity search
+2. Check if there's a semantically similar prompt in the cache
+3. If found, use the cheaper model to generate the response based on the new relevant documents
+4. If not found, perform the standard RAG process, generating a response using the expensive model
+5. Store the prompt and response in the semantic cache for future use
 
-This approach significantly improves performance and reduces costs by avoiding unnecessary LLM calls for semantically similar queries, while still providing accurate and contextually relevant responses.
+This approach significantly improves performance and reduces costs by avoiding calling the most expensive LLM when semantically similar queries have previously been processed while still providing accurate and contextually relevant responses.
