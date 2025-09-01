@@ -167,36 +167,22 @@ The RAG service integrates the semantic cache with the RAG system:
 
 ```kotlin
 fun retrieve(message: String): RagResult {
-    val startCachingTime = System.currentTimeMillis()
     val cachedAnswer = semanticCachingService.getFromCache(message, 0.8)
-    val cachingTimeMs = System.currentTimeMillis() - startCachingTime
 
     if (cachedAnswer != null) {
         return RagResult(
-            generation = Generation(AssistantMessage(cachedAnswer)),
-            metrics = RagMetrics(
-                embeddingTimeMs = 0,
-                searchTimeMs = 0,
-                llmTimeMs = 0,
-                cachingTimeMs = cachingTimeMs
-            )
+            generation = Generation(AssistantMessage(cachedAnswer))
         )
     }
 
-    // Standard RAG process if no cache hit
+    // Standard RAG process if cache miss
     // ...
 
     // Store the response in the cache for future use
     semanticCachingService.storeInCache(message, response.result.output.text.toString())
 
     return RagResult(
-        generation = response.result,
-        metrics = RagMetrics(
-            embeddingTimeMs = embeddingTimeMs,
-            searchTimeMs = searchTimeMs,
-            llmTimeMs = llmTimeMs,
-            cachingTimeMs = 0 // Not using cache in this case
-        )
+        generation = response.result
     )
 }
 ```

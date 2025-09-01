@@ -1,4 +1,4 @@
-package com.redis.semanticcachingwithspringai
+package com.redis.semanticcachingwithspringai.semanticcaching
 
 import org.slf4j.LoggerFactory
 import org.springframework.ai.document.Document

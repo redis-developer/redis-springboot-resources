@@ -1,4 +1,4 @@
-package com.redis.semanticcachingwithspringai
+package com.redis.semanticcachingwithspringai.semanticcaching
 
 import org.springframework.ai.transformers.TransformersEmbeddingModel
 import org.springframework.ai.vectorstore.redis.RedisVectorStore

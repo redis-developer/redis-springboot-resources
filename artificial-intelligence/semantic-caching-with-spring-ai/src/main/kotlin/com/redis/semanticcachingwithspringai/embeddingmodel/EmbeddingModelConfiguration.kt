@@ -1,4 +1,4 @@
-package com.redis.semanticcachingwithspringai
+package com.redis.semanticcachingwithspringai.embeddingmodel
 
 import org.springframework.ai.transformers.TransformersEmbeddingModel
 import org.springframework.context.annotation.Bean

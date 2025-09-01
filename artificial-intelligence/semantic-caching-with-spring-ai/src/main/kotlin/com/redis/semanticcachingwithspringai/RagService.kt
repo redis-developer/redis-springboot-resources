@@ -1,5 +1,6 @@
 package com.redis.semanticcachingwithspringai
 
+import com.redis.semanticcachingwithspringai.semanticcaching.SemanticCachingService
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.messages.AssistantMessage
 import org.springframework.ai.chat.messages.Message
@@ -72,7 +73,7 @@ class RagService(
         var searchTimeMs: Long = 0
 
         // Get documents with timing metrics
-        val (embTime, searchTime, docs) = measureAugmentTime(message)
+        val (embTime, searchTime, docs) = getDocuments(message)
         embeddingTimeMs = embTime
         searchTimeMs = searchTime
 
@@ -98,7 +99,7 @@ class RagService(
         )
     }
 
-    private fun measureAugmentTime(message: String): Triple<Long, Long, List<Document>> {
+    private fun getDocuments(message: String): Triple<Long, Long, List<Document>> {
         val request = SearchRequest
             .builder()
             .query(message)

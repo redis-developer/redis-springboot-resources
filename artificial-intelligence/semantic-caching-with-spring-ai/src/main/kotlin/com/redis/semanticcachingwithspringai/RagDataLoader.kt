@@ -32,7 +32,7 @@ class RagDataLoader(
             file = InputStreamResource(inputStream, "beers.json.gz")
         }
 
-        logger.info("Creating Embeddings (May take around 3 minutes...")
+        logger.info("Creating Embeddings (May take around 3 minutes...)")
         val loader = JsonReader(file, *KEYS)
         val documents = loader.get()
         val batchSize = 500
