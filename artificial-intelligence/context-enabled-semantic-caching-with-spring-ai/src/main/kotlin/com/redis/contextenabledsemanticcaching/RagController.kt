@@ -35,7 +35,9 @@ class RagController(
                 embeddingTimeMs = result.metrics.embeddingTimeMs,
                 searchTimeMs = result.metrics.searchTimeMs,
                 llmTimeMs = result.metrics.llmTimeMs,
-                cachingTimeMs = result.metrics.cachingTimeMs
+                cachingTimeMs = result.metrics.cachingTimeMs,
+                wasCached = result.metrics.wasCached,
+                model = result.metrics.modelUsed
             )
         )
     }
@@ -49,7 +51,9 @@ data class MetricsResponse(
     val embeddingTimeMs: Long,
     val searchTimeMs: Long,
     val llmTimeMs: Long,
-    val cachingTimeMs: Long = 0
+    val cachingTimeMs: Long = 0,
+    val wasCached: Boolean = false,
+    val model: String? = null
 )
 
 data class ChatResponse(

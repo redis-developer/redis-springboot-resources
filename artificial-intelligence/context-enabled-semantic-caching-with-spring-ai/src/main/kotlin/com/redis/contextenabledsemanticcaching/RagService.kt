@@ -53,7 +53,9 @@ class RagService(
         val embeddingTimeMs: Long,
         val searchTimeMs: Long,
         val llmTimeMs: Long,
-        val cachingTimeMs: Long = 0
+        val cachingTimeMs: Long = 0,
+        val wasCached: Boolean = false,
+        val modelUsed: String = ""
     )
 
     data class RagResult(
@@ -104,7 +106,9 @@ class RagService(
                 embeddingTimeMs = embeddingTimeMs,
                 searchTimeMs = searchTimeMs,
                 llmTimeMs = llmTimeMs,
-                cachingTimeMs = cachingTimeMs
+                cachingTimeMs = cachingTimeMs,
+                wasCached = cachedQuestion != null,
+                modelUsed = if (cachedQuestion != null) openAiCheapChatModel.defaultOptions.model.toString() else openAiExpensiveChatModel.defaultOptions.model.toString()
             )
         )
     }
