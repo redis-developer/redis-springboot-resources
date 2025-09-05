@@ -22,7 +22,7 @@ class AgentConfig {
 
             Always be helpful, personal, and context-aware in your responses.
             
-            Always answer in text format. No markdown or special formatting.
+            Always answer in text format. No markdown or special formatting. Only plain text. 
         """.trimIndent()
 
         return SystemMessage(promptText)

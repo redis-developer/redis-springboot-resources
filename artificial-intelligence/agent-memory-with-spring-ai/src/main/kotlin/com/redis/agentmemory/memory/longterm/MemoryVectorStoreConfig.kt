@@ -1,4 +1,4 @@
-package com.redis.agentmemory.memory
+package com.redis.agentmemory.memory.longterm
 
 import org.springframework.ai.embedding.EmbeddingModel
 import org.springframework.ai.vectorstore.redis.RedisVectorStore
@@ -16,7 +16,7 @@ class MemoryVectorStoreConfig {
         jedisPooled: JedisPooled
     ): RedisVectorStore {
         return RedisVectorStore.builder(jedisPooled, embeddingModel)
-            .indexName("memoryIdx")
+            .indexName("longTermMemoryIdx")
             .contentFieldName("content")
             .embeddingFieldName("embedding")
             .metadataFields(
@@ -25,7 +25,7 @@ class MemoryVectorStoreConfig {
                 RedisVectorStore.MetadataField("userId", Schema.FieldType.TAG),
                 RedisVectorStore.MetadataField("createdAt", Schema.FieldType.TEXT)
             )
-            .prefix("memory:")
+            .prefix("short-term-memory:")
             .initializeSchema(true)
             .vectorAlgorithm(RedisVectorStore.Algorithm.HSNW)
             .build()

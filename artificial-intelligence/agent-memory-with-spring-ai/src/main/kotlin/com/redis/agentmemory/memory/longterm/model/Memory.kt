@@ -1,4 +1,4 @@
-package com.redis.agentmemory.memory.model
+package com.redis.agentmemory.memory.longterm.model
 
 import java.time.LocalDateTime
 import java.util.UUID

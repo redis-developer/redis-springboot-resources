@@ -1,7 +1,7 @@
 package com.redis.agentmemory.controller
 
-import com.redis.agentmemory.memory.MemoryService
-import com.redis.agentmemory.memory.model.Memory
+import com.redis.agentmemory.memory.longterm.MemoryService
+import com.redis.agentmemory.memory.longterm.model.Memory
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -14,7 +14,7 @@ class MemoryManagementController(
     fun retrieveMemories(
         @RequestParam(required = false) userId: String?
     ): ResponseEntity<List<Memory>> {
-        val memories = memoryService.retrieveMemories(
+        val memories = memoryService.retrieveRelevantMemories(
             "",
             null,
             userId,

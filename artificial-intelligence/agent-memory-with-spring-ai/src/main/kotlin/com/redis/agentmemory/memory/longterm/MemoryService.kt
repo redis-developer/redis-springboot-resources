@@ -1,10 +1,11 @@
-package com.redis.agentmemory.memory
+package com.redis.agentmemory.memory.longterm
 
-import com.redis.agentmemory.memory.model.Memory
-import com.redis.agentmemory.memory.model.MemoryType
-import com.redis.agentmemory.memory.model.StoredMemory
+import com.redis.agentmemory.memory.longterm.model.Memory
+import com.redis.agentmemory.memory.longterm.model.MemoryType
+import com.redis.agentmemory.memory.longterm.model.StoredMemory
 import org.slf4j.LoggerFactory
 import org.springframework.ai.document.Document
+import org.springframework.ai.tool.annotation.Tool
 import org.springframework.ai.vectorstore.SearchRequest
 import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder
 import org.springframework.ai.vectorstore.redis.RedisVectorStore
@@ -19,6 +20,7 @@ class MemoryService(
     private val log = LoggerFactory.getLogger(MemoryService::class.java)
     private val systemUserId = "system"
 
+    @Tool
     fun storeMemory(
         content: String,
         memoryType: MemoryType,
@@ -87,7 +89,8 @@ class MemoryService(
         return StoredMemory(memory)
     }
 
-    fun retrieveMemories(
+    @Tool
+    fun retrieveRelevantMemories(
         query: String,
         memoryType: MemoryType? = null,
         userId: String? = null,
@@ -137,7 +140,7 @@ class MemoryService(
                     metadata = metadata["metadata"] as String? ?: "{}",
                     userId = metadata["userId"] as String? ?: systemUserId,
                     createdAt = try {
-                        LocalDateTime.parse(metadata["createdAt"] as String?)
+                        LocalDateTime.parse(metadata["createdAt"] as String)
                     } catch (_: Exception) {
                         LocalDateTime.now()
                     }

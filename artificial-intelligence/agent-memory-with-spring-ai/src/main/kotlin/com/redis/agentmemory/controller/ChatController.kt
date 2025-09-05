@@ -4,17 +4,8 @@ import com.redis.agentmemory.chat.ChatService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
-data class MetricsResponse(
-    val embeddingTimeMs: Long,
-    val memoryRetrievalTimeMs: Long,
-    val memoryExtractionTimeMs: Long,
-    val memoryStorageTimeMs: Long,
-    val llmTimeMs: Long
-)
-
-data class ChatResponseWithMetrics(
-    val message: String,
-    val metrics: MetricsResponse
+data class ChatResponse(
+    val message: String
 )
 
 @RestController
@@ -27,18 +18,11 @@ class ChatController(
     fun sendMessage(
         @RequestParam message: String,
         @RequestParam userId: String,
-    ): ResponseEntity<ChatResponseWithMetrics> {
+    ): ResponseEntity<ChatResponse> {
         val result = chatService.sendMessage(message, userId)
         return ResponseEntity.ok(
-            ChatResponseWithMetrics(
+            ChatResponse(
                 message = result.response.result.output.text ?: "",
-                metrics = MetricsResponse(
-                    embeddingTimeMs = result.metrics.embeddingTimeMs,
-                    memoryRetrievalTimeMs = result.metrics.memoryRetrievalTimeMs,
-                    memoryExtractionTimeMs = result.metrics.memoryExtractionTimeMs,
-                    memoryStorageTimeMs = result.metrics.memoryStorageTimeMs,
-                    llmTimeMs = result.metrics.llmTimeMs
-                )
             )
         )
     }
@@ -52,8 +36,8 @@ class ChatController(
         // Convert Message objects to a simpler format for the frontend
         val formattedHistory = history.map { message ->
             mapOf(
-                "role" to message.javaClass.simpleName.replace("Message", "").lowercase(),
-                "content" to message.text
+                "role" to message?.messageType.toString(),
+                "content" to (message?.text ?: "")
             )
         }
 

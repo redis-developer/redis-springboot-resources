@@ -1,4 +1,4 @@
-package com.redis.agentmemory.memory.model
+package com.redis.agentmemory.memory.longterm.model
 
 /**
  * Defines the type of long-term memory for categorization and retrieval.
