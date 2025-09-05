@@ -22,9 +22,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 
-    implementation("com.redis.om:redis-om-spring:1.0.0-RC3")
-    implementation("com.redis.om:redis-om-spring-ai:1.0.0-RC3")
-    annotationProcessor("com.redis.om:redis-om-spring:1.0.0-RC3")
+    implementation("com.redis.om:redis-om-spring:1.0.0")
+    implementation("com.redis.om:redis-om-spring-ai:1.0.0")
+    annotationProcessor("com.redis.om:redis-om-spring:1.0.0")
 
     // Spring AI
     implementation("org.springframework.ai:spring-ai-openai:1.0.0")

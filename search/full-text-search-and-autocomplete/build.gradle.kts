@@ -22,8 +22,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 
-    implementation("com.redis.om:redis-om-spring:1.0.0-RC3")
-    annotationProcessor("com.redis.om:redis-om-spring:1.0.0-RC3")
+    implementation("com.redis.om:redis-om-spring:1.0.0")
+    annotationProcessor("com.redis.om:redis-om-spring:1.0.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

@@ -25,7 +25,7 @@ dependencies {
     implementation("org.springframework.ai:spring-ai-starter-vector-store-redis:1.0.0")
     implementation("org.springframework.ai:spring-ai-starter-model-openai:1.0.0")
 
-    implementation("com.redis.om:redis-om-spring:1.0.0-RC3")
+    implementation("com.redis.om:redis-om-spring:1.0.0")
 
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     testImplementation("org.springframework.boot:spring-boot-starter-test")

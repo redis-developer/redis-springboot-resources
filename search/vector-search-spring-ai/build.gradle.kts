@@ -29,7 +29,7 @@ dependencies {
     implementation("org.springframework.ai:spring-ai-transformers:1.0.0")
     implementation("org.springframework.ai:spring-ai-starter-vector-store-redis")
 
-    implementation("com.redis.om:redis-om-spring:1.0.0-RC3")
+    implementation("com.redis.om:redis-om-spring:1.0.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
