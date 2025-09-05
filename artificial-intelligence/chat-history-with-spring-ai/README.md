@@ -48,9 +48,9 @@ docker compose up --build
 
 This will start:
 
-- redis: for storing both vector embeddings and chat history
+- redis: for storing the chat history
 - redis-insight: a UI to explore the Redis data
-- agent-memory-app: the Spring Boot app that implements the memory-aware AI agent
+- chat-history-app: the Spring Boot app that implements the chat history enabled AI Agent
 
 ## Using the demo
 

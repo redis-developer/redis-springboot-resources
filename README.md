@@ -10,13 +10,14 @@ This repository contains several modules demonstrating different Redis capabilit
 
 ### Artificial Intelligence
 
-| Module                             | Description                                                                               | Link                                                                                         |
-|------------------------------------|-------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
-| Agent Memory with Spring AI        | Demonstrates how to implement AI agent memory using Redis and Spring AI                   | [agent-memory-with-spring-ai](./artificial-intelligence/agent-memory-with-spring-ai)         |
-| RAG with Spring AI                 | Shows how to implement Retrieval-Augmented Generation (RAG) using Redis and Spring AI     | [rag-with-spring-ai](./artificial-intelligence/rag-with-spring-ai)                           |
-| Semantic Caching with Spring AI    | Illustrates how to implement semantic caching for LLM responses using Redis and Spring AI | [semantic-caching-with-spring-ai](./artificial-intelligence/semantic-caching-with-spring-ai) |
-| Vector Search with Redis OM Spring | Shows how to implement vector similarity search using Redis OM Spring                     | [vector-search](./search/vector-search)                                                      |
-| Vector Search with Spring AI       | Illustrates how to implement vector similarity search using Spring AI and Redis           | [vector-search-spring-ai](./search/vector-search-spring-ai)                                  |
+| Module                             | Description                                                                                    | Link                                                                                         |
+|------------------------------------|------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
+| Agent Memory with Spring AI        | Demonstrates how to implement AI agent memory using Redis and Spring AI                        | [agent-memory-with-spring-ai](./artificial-intelligence/agent-memory-with-spring-ai)         |
+| Chat History with Spring AI        | Demonstrates how to implement chat history for AI agents using Spring AI's Advisor Abstraction | [chat-history-with-spring-ai](./artificial-intelligence/chat-history-with-spring-ai)         |
+| RAG with Spring AI                 | Shows how to implement Retrieval-Augmented Generation (RAG) using Redis and Spring AI          | [rag-with-spring-ai](./artificial-intelligence/rag-with-spring-ai)                           |
+| Semantic Caching with Spring AI    | Illustrates how to implement semantic caching for LLM responses using Redis and Spring AI      | [semantic-caching-with-spring-ai](./artificial-intelligence/semantic-caching-with-spring-ai) |
+| Vector Search with Redis OM Spring | Shows how to implement vector similarity search using Redis OM Spring                          | [vector-search](./search/vector-search)                                                      |
+| Vector Search with Spring AI       | Illustrates how to implement vector similarity search using Spring AI and Redis                | [vector-search-spring-ai](./search/vector-search-spring-ai)                                  |
 
 ### Caching
 

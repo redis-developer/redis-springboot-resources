@@ -7,4 +7,4 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=builder /app/artificial-intelligence/agent-memory-with-spring-ai/build/libs/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "--add-opens=java.base/java.nio.charset=ALL-UNNAMED", "-jar", "app.jar"]
