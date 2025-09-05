@@ -1,4 +1,4 @@
-package com.redis.agentmemory.memory.shortterm
+package com.redis.shorttermmemorywithspringai.memory.shortterm
 
 import com.redis.om.spring.annotations.Document
 import org.springframework.ai.chat.messages.AssistantMessage
@@ -10,7 +10,7 @@ import org.springframework.ai.chat.messages.ToolResponseMessage
 import org.springframework.ai.chat.messages.UserMessage
 import org.springframework.ai.content.Media
 
-@Document(value = "short-term-memory", indexName = "shortTermHistoryIdx")
+@Document(value = "short-term-memory", indexName = "shortTermMemoryIdx")
 data class ChatHistory(
     @Id
     val id: String? = null,

@@ -25,7 +25,7 @@ class MemoryVectorStoreConfig {
                 RedisVectorStore.MetadataField("userId", Schema.FieldType.TAG),
                 RedisVectorStore.MetadataField("createdAt", Schema.FieldType.TEXT)
             )
-            .prefix("short-term-memory:")
+            .prefix("long-term-memory:")
             .initializeSchema(true)
             .vectorAlgorithm(RedisVectorStore.Algorithm.HSNW)
             .build()
