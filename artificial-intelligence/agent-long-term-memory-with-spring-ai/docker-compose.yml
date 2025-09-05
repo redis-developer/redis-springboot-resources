@@ -29,10 +29,10 @@ services:
     depends_on:
       - redis
 
-  agent-memory-app:
+  agent-long-term-memory-app:
     build:
       context: ../..
-      dockerfile: artificial-intelligence/agent-memory-with-spring-ai/Dockerfile
+      dockerfile: /Dockerfile
     ports:
       - "8080:8080"
     environment:

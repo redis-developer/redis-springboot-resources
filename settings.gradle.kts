@@ -1,7 +1,7 @@
 rootProject.name = "redis-springboot-recipes"
 
 include("artificial-intelligence")
-include("artificial-intelligence:agent-memory-with-spring-ai")
+include("artificial-intelligence:agent-long-term-memory-with-spring-ai")
 include("artificial-intelligence:chat-history-with-spring-ai")
 include("artificial-intelligence:rag-with-spring-ai")
 include("artificial-intelligence:semantic-caching-with-spring-ai")
