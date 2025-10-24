@@ -20,8 +20,8 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
 
-    implementation("com.redis.om:redis-om-spring:1.0.0")
-    annotationProcessor("com.redis.om:redis-om-spring:1.0.0")
+    implementation("com.redis.om:redis-om-spring:1.0.4")
+    annotationProcessor("com.redis.om:redis-om-spring:1.0.4")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("com.redis:testcontainers-redis:2.2.4")

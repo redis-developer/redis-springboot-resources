@@ -121,7 +121,7 @@ Agents rely on short and long-term memory. Short-term memory is typically the ch
 
 To implement both of these memories, we're going to rely on the Spring AI Advisors API. Advisors are a way to intercept, modify, and enhance AI-driven interactions. 
 
-We are going to create two advisors. The first one, for shot-term memory, is going to rely on the ChatMemory abstraction provided by Spring AI while the second one is going to be implemented from scratch by ourselves.
+We are going to create three advisors. The first one, for shot-term memory, is going to rely on the ChatMemory abstraction provided by Spring AI while the second and third one are going to be implemented for long-term memory.
 
 ### Short-term memory
 
